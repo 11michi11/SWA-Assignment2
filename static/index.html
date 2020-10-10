@@ -1,0 +1,58 @@
+<html>
+<head>
+    <title>Weather</title>
+    <script type="text/javascript" src="script.js"></script>
+    <style>
+        td {
+            height: 40px;
+            width: auto;
+            border: 1px solid black;
+        }
+        table {
+            table-layout: auto;
+            border: 1px solid black;
+            border-spacing: 0;
+        }
+    </style>
+</head>
+<body onload="init()">
+<div id='base'>
+    <h1>Latest weather measurements</h1>
+    <table id='weather_measurements'>
+        <thead>
+        <tr>
+            <td>Place</td>
+            <td>Temperature</td>
+            <td>Precipitation</td>
+            <td>Wind Speed</td>
+            <td>Cloud coverage</td>
+        </tr>
+        </thead>
+        <tbody id='weather_measurements_data'></tbody>
+    </table>
+
+    <h1>Temperature for last 5 days</h1>
+    <table id='minimum_temperature'>
+        <thead>
+        <tr>
+            <td>Place</td>
+            <td>Minimum Temperature</td>
+            <td>Maximum Temperature</td>
+        </tr>
+        </thead>
+        <tbody id='minimum_temperature_data'></tbody>
+    </table>
+
+    <h1>Total precipitation for last 5 days</h1>
+    <table id='total_precipitation'>
+        <thead>
+        <tr>
+            <td>Place</td>
+            <td>Precipitation</td>
+        </tr>
+        </thead>
+        <tbody id='total_precipitation_data'></tbody>
+    </table>
+</div>
+</body>
+</html>
