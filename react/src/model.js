@@ -1,18 +1,62 @@
-const model = (persons, employees, filter = () => true) => {
-    const employeeMap = {}
-    employees.forEach(e => employeeMap[e.employeeId] = e)
+const model = (place,
+               temperature,
+               precipitation,
+               wind,
+               cloud,
+               temperaturePrediction,
+               precipitationPrediction,
+               windPrediction,
+               cloudPrediction,
+               filter = () => true
+) => {
 
-    const personData = () => persons
-        .map(p => ({ ...p, ...employeeMap[p.employeeId]}))
-        .filter(filter)
+    const temperatureData = () => temperature.filter(filter)
+    const precipitationData = () => precipitation.filter(filter)
+    const windData = () => wind.filter(filter)
+    const cloudData = () => cloud.filter(filter)
+    const temperaturePredictionData = () => temperaturePrediction.filter(filter)
+    const precipitationPredictionData = () => precipitationPrediction.filter(filter)
+    const windPredictionData = () => windPrediction.filter(filter)
+    const cloudPredictionData = () => cloudPrediction.filter(filter)
 
-    const updatePerson = p => model(persons.map(pp => p.id === pp.id? p : pp), employees, filter)
-    const addEmployee = e => model(persons, employees.concat(e), filter)
+    const filtered = filter => model(
+        place,
+        temperatureData,
+        precipitationData,
+        windData,
+        cloudData,
+        temperaturePredictionData,
+        precipitationPredictionData,
+        windPredictionData,
+        cloudPredictionData,
+        filter
+    )
 
-    const filtered = filter => model(persons, employees, filter )
-    const all = () => model(persons, employees)
+    const all = () => model(
+        place,
+        temperature,
+        precipitation,
+        wind,
+        cloud,
+        temperaturePrediction,
+        precipitationPrediction,
+        windPrediction,
+        cloudPrediction
+    )
 
-    return { personData, updatePerson, addEmployee, filtered, all }
+    return {
+        place,
+        temperatureData,
+        precipitationData,
+        windData,
+        cloudData,
+        temperaturePredictionData,
+        precipitationPredictionData,
+        windPredictionData,
+        cloudPredictionData,
+        filtered,
+        all
+    }
 }
 
 export default model
