@@ -1,4 +1,4 @@
-<html ng-app='employeeApp'>
+<html ng-app='weatherApp'>
 <head> 
     <title>People</title>
     <style>
@@ -17,12 +17,18 @@
         import './components.js'
     </script>
 </head>
-<body ng-controller="EmployeeController">
+<body ng-controller="WeatherController">
     <div id='base'>
-        <h1>People</h1>
-        <employee-table id='employees' attribute='persons'>
-        </employee-table>
-        <p>Salary: <input ng-model='model.salary'></p>
+
+        <h1>Latest weather measurements</h1>
+        <weather-measurements-table attribute="data">
+
+        </weather-measurements-table>
+
+<!--        <h1>People</h1>-->
+<!--        <employee-table id='employees' attribute='persons'>-->
+<!--        </employee-table>-->
+<!--        <p>Salary: <input ng-model='model.salary'></p>-->
     </div>
 </body>
 </html>
