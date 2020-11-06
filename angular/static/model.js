@@ -44,17 +44,12 @@ const model = (place,
         cloudPrediction
     )
 
-    const getLastMeasurement = () => model(
-        place,
-        temperature[temperature.length - 1],
-        precipitation[precipitation.length - 1],
-        wind[wind.length - 1],
-        cloud[cloud.length - 1],
-        temperaturePrediction,
-        precipitationPrediction,
-        windPrediction,
-        cloudPrediction
-    )
+    const getLastMeasurement = {
+        temperature:temperature[temperature.length - 1],
+        precipitation:precipitation[precipitation.length - 1],
+        wind:wind[wind.length - 1],
+        cloud:cloud[cloud.length - 1],
+    }
 
     return {
         place,

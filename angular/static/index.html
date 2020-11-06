@@ -19,16 +19,20 @@
 </head>
 <body ng-controller="WeatherController">
     <div id='base'>
+        <select ng-model="model.place" ng-change="changePlace(model.place)">
+            <option value="Horsens">Horsens</option>
+            <option value="Aarhus">Aarhus</option>
+            <option value="Copenhagen">Copenhagen</option>
+        </select>
 
         <h1>Latest weather measurements</h1>
-        <weather-measurements-table attribute="data">
+        <weather-measurements-table id='weather'  attribute="data">
 
         </weather-measurements-table>
 
 <!--        <h1>People</h1>-->
 <!--        <employee-table id='employees' attribute='persons'>-->
 <!--        </employee-table>-->
-<!--        <p>Salary: <input ng-model='model.salary'></p>-->
     </div>
 </body>
 </html>
