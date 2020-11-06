@@ -7,6 +7,30 @@ export default (init_model, view, renderer) => {
         const { employee, person } = action
         return model.addEmployee(employee).updatePerson(person)
 
+      case 'loadDataForPlace':
+        const { 
+          place,
+          temperature,
+          precipitation,
+          wind,
+          cloud,
+          temperaturePrediction,
+          precipitationPrediction,
+          windPrediction,
+          cloudPrediction 
+        } = action
+        return model.reload(
+          place,           
+          temperature,
+          precipitation,
+          wind,
+          cloud,
+          temperaturePrediction,
+          precipitationPrediction,
+          windPrediction,
+          cloudPrediction 
+        )
+
       default:
         return model
     }

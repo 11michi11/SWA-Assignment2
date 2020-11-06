@@ -8,15 +8,17 @@ import dispatcher from './dispatcher.js'
 
 async function init() {
     try {
-        const person_res = await fetch('http://localhost:9090/persons')
-        const persons = await person_res.json()
-        const employees = await fetch('http://localhost:9090/employees').then(res => res.json())
-        const theModel = model(persons, employees)
+        // const person_res = await fetch('http://localhost:9090/persons')
+        // const persons = await person_res.json()
+        // const employees = await fetch('http://localhost:9090/employees').then(res => res.json())
+        // const theModel = model(persons, employees)
         let renderer = dom => ReactDOM.render(dom, document.getElementById('root'))
+        const theModel = model()
         let theDispatcher
         const theView = view(() => theDispatcher)
         const theStore = store(theModel, theView, renderer)
-        theDispatcher = dispatcher(theStore)
+        // theDispatcher = dispatcher(theStore)
+        theDispatcher = dispatcher(theStore)({type:'loadDataForPlace', place: "Horsens"})
         renderer(theView(theModel))
     } catch (err) {
         console.log(err)

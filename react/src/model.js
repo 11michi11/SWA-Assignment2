@@ -10,14 +10,36 @@ const model = (place,
                filter = () => true
 ) => {
 
-    const temperatureData = () => temperature.filter(filter)
-    const precipitationData = () => precipitation.filter(filter)
-    const windData = () => wind.filter(filter)
-    const cloudData = () => cloud.filter(filter)
-    const temperaturePredictionData = () => temperaturePrediction.filter(filter)
-    const precipitationPredictionData = () => precipitationPrediction.filter(filter)
-    const windPredictionData = () => windPrediction.filter(filter)
-    const cloudPredictionData = () => cloudPrediction.filter(filter)
+    const reload = (
+        place,               
+        temperature,
+        precipitation,
+        wind,
+        cloud,
+        temperaturePrediction,
+        precipitationPrediction,
+        windPrediction,
+        cloudPrediction) => model(
+            place,               
+            temperature,
+            precipitation,
+            wind,
+            cloud,
+            temperaturePrediction,
+            precipitationPrediction,
+            windPrediction,
+            cloudPrediction,
+            filter
+        )
+
+    const temperatureData = () => temperature?.filter(filter)
+    const precipitationData = () => precipitation?.filter(filter)
+    const windData = () => wind?.filter(filter)
+    const cloudData = () => cloud?.filter(filter)
+    const temperaturePredictionData = () => temperaturePrediction?.filter(filter)
+    const precipitationPredictionData = () => precipitationPrediction?.filter(filter)
+    const windPredictionData = () => windPrediction?.filter(filter)
+    const cloudPredictionData = () => cloudPrediction?.filter(filter)
 
     const filtered = filter => model(
         place,
@@ -30,6 +52,14 @@ const model = (place,
         windPredictionData,
         cloudPredictionData,
         filter
+    )
+
+    const latest = () => model(
+        place,
+        findLatest(temperature),
+        findLatest(precipitation),
+        findLatest(wind),
+        findLatest(cloud)
     )
 
     const all = () => model(
@@ -55,8 +85,14 @@ const model = (place,
         windPredictionData,
         cloudPredictionData,
         filtered,
+        latest,
+        reload,
         all
     }
 }
 
 export default model
+
+function findLatest(data) {
+    return [data[data.length-1]];
+}
