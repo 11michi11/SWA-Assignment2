@@ -8,7 +8,8 @@ TWO WAYS DATA BIDING
 module.value('$model', {
     place: "Horsens",
     data: {},
-    hour: "all",
+    intervalStart: "0",
+    intervalEnd: "23",
     temperature: "",
     precipitation: "",
     precipitation_type: "",
@@ -233,8 +234,9 @@ module.controller('WeatherController', function ($scope, $model, $http) {
         loadData($scope, $model, $http, place)
     }
 
-    $scope.changeHour = () => {
-        //loadData($scope, $model, $http)
+    $scope.changeInterval = () => {
+        console.log("CHANGE INTERVAL FROM " + $model.intervalStart + " TO " + $model.intervalEnd)
+        loadData($scope, $model, $http, $model.place, $model.intervalStart, $model.intervalEnd)
     }
 
     $scope.reload = () => {
@@ -257,7 +259,7 @@ module.controller('WeatherController', function ($scope, $model, $http) {
 })
 
 
-function loadData($scope, $model, $http, place) {
+function loadData($scope, $model, $http, place, intervalStart, intervalEnd) {
     let aModel
     $http.get(`http://localhost:8080/data/${place}`)
         .then(({data: measurements}) => {
@@ -289,7 +291,7 @@ function loadData($scope, $model, $http, place) {
                     );
                     $scope.model.data = aModel
                     $scope.model.lastMeasurements = aModel.lastMeasurement
-                    $scope.model.predictions = aModel.getPredictions()
+                    $scope.model.predictions = aModel.getPredictions(intervalStart, intervalEnd)
                     $scope.model.minimumTemperature = aModel.getMinimumTemperature()
                     $scope.model.maximumTemperature = aModel.getMaximumTemperature()
                     $scope.model.totalPrecipitation = aModel.getTotalPrecipitation()

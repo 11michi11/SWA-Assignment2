@@ -95,36 +95,30 @@ const model = (place,
             }, 0).toFixed(1)
     }
 
-    const getPredictions = () => {
+    const getPredictions = (intervalStart, intervalEnd) => {
         let result = []
         for(let i = 0;i<24;i++) {
-            result.push({
-                temperature: temperaturePrediction[i],
-                precipitation: precipitationPrediction[i],
-                wind: windPrediction[i],
-                cloud: cloudPrediction[i],
-            })
+            if (intervalStart != null && intervalEnd != null) {
+                let date = new Date(temperaturePrediction[i].time)
+                if (date.getHours() >= intervalStart && date.getHours() <= intervalEnd) {
+                    result.push({
+                        temperature: temperaturePrediction[i],
+                        precipitation: precipitationPrediction[i],
+                        wind: windPrediction[i],
+                        cloud: cloudPrediction[i],
+                    })
+                }
+            } else {
+                result.push({
+                    temperature: temperaturePrediction[i],
+                    precipitation: precipitationPrediction[i],
+                    wind: windPrediction[i],
+                    cloud: cloudPrediction[i],
+                })
+            }
         }
         return result;
     }
-
-    // const getPredictionByHour = hour => {
-    //     let result = []
-    //     let predictions = getPredictions();
-    //     for (let i = 0;i<predictions.length;i++)  {
-    //         let date = new Date(temperaturePrediction[i].time)
-    //         if (date.getHours() == hour) {
-    //             result.push({
-    //                 temperature: temperaturePrediction[i],
-    //                 precipitation: precipitationPrediction[i],
-    //                 wind: windPrediction[i],
-    //                 cloud: cloudPrediction[i],
-    //             })
-    //             return result;
-    //         }
-    //     }
-    // }
-
 
     return {
         place,
