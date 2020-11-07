@@ -1,6 +1,6 @@
 <html ng-app='weatherApp'>
 <head> 
-    <title>People</title>
+    <title>Weather Data</title>
     <style>
         td {
             width: 40px;
@@ -19,6 +19,7 @@
 </head>
 <body ng-controller="WeatherController">
     <div id='base'>
+        <h3>Select city</h3>
         <select ng-model="model.place" ng-change="changePlace(model.place)">
             <option value="Horsens">Horsens</option>
             <option value="Aarhus">Aarhus</option>
@@ -27,16 +28,113 @@
 
         <button ng-click="reload()">Reload</button>
 
+        <div >
+            <h3>Add weather data</h3>
+            <label>Choose city:</label>
+            <select ng-model="model.place" ng-change="changePlace(model.place)">
+                <option value="Horsens">Horsens</option>
+                <option value="Aarhus">Aarhus</option>
+                <option value="Copenhagen">Copenhagen</option>
+            </select>
+
+            <br>
+            <label>Add temperature:</label>
+            <input type="text" id="temperature" ng-model="model.temperature">
+            <label >°C</label>
+
+            <br>
+            <label>Add precipitation:</label>
+            <input type="text" id="precipitation" ng-model="model.precipitation">
+            <label >mm</label>
+
+            <br>
+            <label>Add precipitation type:</label>
+            <input type="text" id="precipitation_type" ng-model="model.precipitation_type">
+
+            <br>
+            <label>Add wind speed:</label>
+            <input type="text" id="wind_speed" ng-model="model.wind_speed">
+            <label >m/s</label>
+
+            <br>
+            <label>Add wind direction:</label>
+            <select ng-model="model.wind_direction">
+                <option value="Northwest">Northwest</option>
+                <option value="North">North</option>
+                <option value="Northeast">Northeast</option>
+                <option value="East">East</option>
+                <option value="Southeast">Southeast</option>
+                <option value="South">South</option>
+                <option value="Southwest">Southwest</option>
+                <option value="West">West</option>
+            </select>
+
+            <br>
+            <label>Add cloud coverage:</label>
+            <input type="text" id="cloud" ng-model="model.cloud">
+            <label >%</label>
+
+            <br>
+            <button ng-click="submit()">Submit</button>
+        </div>
+
         <h1>Latest weather measurements</h1>
         <weather-measurements-table id='weather'  attribute="data">
         </weather-measurements-table>
 
+        <h1>Maximum and Minimum temperate for last 5 days</h1>
+        <temperature-table >
+        </temperature-table>
+
+        <h1>Total precipitation for last 5 days</h1>
+        <precipitation-table >
+        </precipitation-table>
+
+        <h1>Average wind speed for last 5 days</h1>
+        <average-wind-table >
+        </average-wind-table>
+
+        <h1>Dominant wind direction for last 5 days</h1>
+        <dominant-wind-table >
+        </dominant-wind-table>
+
+        <h1>Average cloud coverage for the last 5 day</h1>
+        <average-cloud-table >
+        </average-cloud-table>
 
         <h1>Hourly predictions for the next 24 hours</h1>
+        <br>
+        <label>Select hour</label>
+        <select ng-model="model.hour" ng-change="changeHour(model.hour)">
+            <option selected="selected" value="all">all</option>
+            <option value="0">00:00</option>
+            <option value="1">01:00</option>
+            <option value="2">02:00</option>
+            <option value="3">03:00</option>
+            <option value="4">04:00</option>
+            <option value="5">05:00</option>
+            <option value="6">06:00</option>
+            <option value="7">07:00</option>
+            <option value="8">08:00</option>
+            <option value="9">09:00</option>
+            <option value="10">10:00</option>
+            <option value="11">11:00</option>
+            <option value="12">12:00</option>
+            <option value="13">13:00</option>
+            <option value="14">14:00</option>
+            <option value="15">15:00</option>
+            <option value="16">16:00</option>
+            <option value="17">17:00</option>
+            <option value="18">18:00</option>
+            <option value="19">19:00</option>
+            <option value="20">20:00</option>
+            <option value="21">21:00</option>
+            <option value="22">22:00</option>
+            <option value="23">23:00</option>
+        </select>
+
         <hourly-prediction-table>
         </hourly-prediction-table>
-
-
     </div>
 </body>
 </html>

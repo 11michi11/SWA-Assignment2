@@ -51,9 +51,53 @@ const model = (place,
         cloud:cloud[cloud.length - 1],
     }
 
+    const getMinimumTemperature = () => {
+        return Math.min(...temperature.slice(-5).map(entry => entry.value))
+    }
+
+    const getMaximumTemperature = () => {
+        return Math.max(...temperature.slice(-5).map(entry => entry.value))
+    }
+
+    const getTotalPrecipitation = () => {
+        return precipitation
+            .slice(-5)
+            .map(entry => entry.value)
+            .reduce((total, entry) => {
+                return total + entry;
+            }, 0).toFixed(1)
+    }
+
+    const getAverageWindSpeed = () => {
+        return wind
+            .slice(-5)
+            .map(entry => entry.value)
+            .reduce((total, entry) => {
+                return total + entry / wind.length;
+            }, 0).toFixed(1)
+    }
+
+    const getDominantWindDirection = () => {
+        return wind
+            .slice(-5)
+            .map(entry => entry.direction)
+            .sort((a, b) =>
+                wind.filter(value => value === a).length - wind.filter(value => value === b).length
+            ).pop()
+    }
+
+    const getAverageCloudCoverage = () => {
+        return cloud
+            .slice(-5)
+            .map(entry => entry.value)
+            .reduce((total, entry) => {
+                return total + entry / cloud.length;
+            }, 0).toFixed(1)
+    }
+
     const getPredictions = () => {
         let result = []
-        for(let i = 0;i<temperature.length;i++) {
+        for(let i = 0;i<24;i++) {
             result.push({
                 temperature: temperaturePrediction[i],
                 precipitation: precipitationPrediction[i],
@@ -63,6 +107,24 @@ const model = (place,
         }
         return result;
     }
+
+    // const getPredictionByHour = hour => {
+    //     let result = []
+    //     let predictions = getPredictions();
+    //     for (let i = 0;i<predictions.length;i++)  {
+    //         let date = new Date(temperaturePrediction[i].time)
+    //         if (date.getHours() == hour) {
+    //             result.push({
+    //                 temperature: temperaturePrediction[i],
+    //                 precipitation: precipitationPrediction[i],
+    //                 wind: windPrediction[i],
+    //                 cloud: cloudPrediction[i],
+    //             })
+    //             return result;
+    //         }
+    //     }
+    // }
+
 
     return {
         place,
@@ -77,7 +139,13 @@ const model = (place,
         filtered,
         all,
         lastMeasurement,
-        getPredictions
+        getPredictions,
+        getMinimumTemperature,
+        getMaximumTemperature,
+        getTotalPrecipitation,
+        getAverageWindSpeed,
+        getDominantWindDirection,
+        getAverageCloudCoverage
     }
 }
 
