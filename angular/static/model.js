@@ -44,11 +44,24 @@ const model = (place,
         cloudPrediction
     )
 
-    const getLastMeasurement = {
+    const lastMeasurement = {
         temperature:temperature[temperature.length - 1],
         precipitation:precipitation[precipitation.length - 1],
         wind:wind[wind.length - 1],
         cloud:cloud[cloud.length - 1],
+    }
+
+    const getPredictions = () => {
+        let result = []
+        for(let i = 0;i<temperature.length;i++) {
+            result.push({
+                temperature: temperaturePrediction[i],
+                precipitation: precipitationPrediction[i],
+                wind: windPrediction[i],
+                cloud: cloudPrediction[i],
+            })
+        }
+        return result;
     }
 
     return {
@@ -63,7 +76,8 @@ const model = (place,
         cloudPredictionData,
         filtered,
         all,
-        getLastMeasurement
+        lastMeasurement,
+        getPredictions
     }
 }
 

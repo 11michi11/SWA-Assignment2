@@ -25,14 +25,18 @@
             <option value="Copenhagen">Copenhagen</option>
         </select>
 
+        <button ng-click="reload()">Reload</button>
+
         <h1>Latest weather measurements</h1>
         <weather-measurements-table id='weather'  attribute="data">
-
         </weather-measurements-table>
 
-<!--        <h1>People</h1>-->
-<!--        <employee-table id='employees' attribute='persons'>-->
-<!--        </employee-table>-->
+
+        <h1>Hourly predictions for the next 24 hours</h1>
+        <hourly-prediction-table>
+        </hourly-prediction-table>
+
+
     </div>
 </body>
 </html>
