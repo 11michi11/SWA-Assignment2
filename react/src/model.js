@@ -62,6 +62,14 @@ const model = (place,
         findLatest(cloud)
     )
 
+    const lastFive = () => model(
+        place,
+        getLastFive(temperature),
+        getLastFive(precipitation),
+        getLastFive(wind),
+        getLastFive(cloud)
+    )
+
     const all = () => model(
         place,
         temperature,
@@ -86,6 +94,7 @@ const model = (place,
         cloudPredictionData,
         filtered,
         latest,
+        lastFive,
         reload,
         all
     }
@@ -95,4 +104,8 @@ export default model
 
 function findLatest(data) {
     return [data[data.length-1]];
+}
+
+function getLastFive(data) {
+    return data.slice(-5);
 }

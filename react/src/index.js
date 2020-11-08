@@ -8,17 +8,14 @@ import dispatcher from './dispatcher.js'
 
 async function init() {
     try {
-        // const person_res = await fetch('http://localhost:9090/persons')
-        // const persons = await person_res.json()
-        // const employees = await fetch('http://localhost:9090/employees').then(res => res.json())
-        // const theModel = model(persons, employees)
+        let place = "Horsens"
+        const data = await loadData(place);
+        const theModel = model(place,data.temperature,data.precipitation,data.wind,data.cloud,data.temperaturePrediction,data.precipitationPrediction,data.windPrediction,data.cloudPrediction)
         let renderer = dom => ReactDOM.render(dom, document.getElementById('root'))
-        const theModel = model()
         let theDispatcher
         const theView = view(() => theDispatcher)
         const theStore = store(theModel, theView, renderer)
-        // theDispatcher = dispatcher(theStore)
-        theDispatcher = dispatcher(theStore)({type:'loadDataForPlace', place: "Horsens"})
+        theDispatcher = dispatcher(theStore)
         renderer(theView(theModel))
     } catch (err) {
         console.log(err)
@@ -31,3 +28,41 @@ init()
 // unregister() to register() below. Note this comes with some pitfalls.
 // Learn more about service workers: https://bit.ly/CRA-PWA
 serviceWorker.unregister();
+
+async function loadData(place) {
+    const historyData = await fetch(`http://localhost:8080/data/${place}`).then(res => res.json())
+    const forecastData = await fetch(`http://localhost:8080/forecast/${place}`).then(res => res.json())
+    
+    const historyDataGrouped = groupDataByType(historyData)
+    const forecastDataGrouped = groupDataByType(forecastData)
+
+    const temperature = historyDataGrouped["temperature"]
+    const precipitation = historyDataGrouped["precipitation"]
+    const wind = historyDataGrouped["wind speed"]
+    const cloud = historyDataGrouped["cloud coverage"]
+    const temperaturePrediction = forecastDataGrouped["temperature"]
+    const precipitationPrediction = forecastDataGrouped["precipitation"]
+    const windPrediction = forecastDataGrouped["wind speed"]
+    const cloudPrediction = forecastDataGrouped["cloud coverage"]
+    
+     return {          
+        temperature,
+        precipitation,
+        wind,
+        cloud,
+        temperaturePrediction,
+        precipitationPrediction,
+        windPrediction,
+        cloudPrediction
+      }
+}
+
+function groupDataByType(data) {
+    // Group by data type
+    return data.reduce((types, entry) => {
+      const type = (types[entry.type] || []);
+      type.push(entry);
+      types[entry.type] = type;
+      return types;
+  }, {});
+}

@@ -1,4 +1,5 @@
 export default store => async ({type, ...params}) =>  {
+  console.log("Dispatcher new request")
     switch(type) {
       case 'hire':
         const { id } = params
@@ -19,6 +20,7 @@ export default store => async ({type, ...params}) =>  {
 
       case 'loadDataForPlace':
         const { place } = params
+        console.log("Dispatcher request: loadDataForPlace + "+place)
         if (place) {
           const historyData = await fetch(`http://localhost:8080/data/${place}`).then(res => res.json())
           const forecastData = await fetch(`http://localhost:8080/forecast/${place}`).then(res => res.json())
