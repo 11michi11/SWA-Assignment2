@@ -10,6 +10,8 @@ module.value('$model', {
     data: {},
     intervalStart: "0",
     intervalEnd: "23",
+    dateStart: null,
+    dateEnd: null,
     temperature: "",
     precipitation: "",
     precipitation_type: "",
@@ -235,8 +237,11 @@ module.controller('WeatherController', function ($scope, $model, $http) {
     }
 
     $scope.changeInterval = () => {
-        console.log("CHANGE INTERVAL FROM " + $model.intervalStart + " TO " + $model.intervalEnd)
         loadData($scope, $model, $http, $model.place, $model.intervalStart, $model.intervalEnd)
+    }
+
+    $scope.changeDateInterval = () => {
+        loadData($scope, $model, $http, $model.place, null, null, $model.dateStart,$model.dateEnd)
     }
 
     $scope.reload = () => {
@@ -259,7 +264,7 @@ module.controller('WeatherController', function ($scope, $model, $http) {
 })
 
 
-function loadData($scope, $model, $http, place, intervalStart, intervalEnd) {
+function loadData($scope, $model, $http, place,intervalStart,intervalEnd,dateStart,dateEnd) {
     let aModel
     $http.get(`http://localhost:8080/data/${place}`)
         .then(({data: measurements}) => {
@@ -292,12 +297,12 @@ function loadData($scope, $model, $http, place, intervalStart, intervalEnd) {
                     $scope.model.data = aModel
                     $scope.model.lastMeasurements = aModel.lastMeasurement
                     $scope.model.predictions = aModel.getPredictions(intervalStart, intervalEnd)
-                    $scope.model.minimumTemperature = aModel.getMinimumTemperature()
-                    $scope.model.maximumTemperature = aModel.getMaximumTemperature()
-                    $scope.model.totalPrecipitation = aModel.getTotalPrecipitation()
-                    $scope.model.averageWindSpeed = aModel.getAverageWindSpeed()
-                    $scope.model.dominantWindDirection = aModel.getDominantWindDirection()
-                    $scope.model.averageCloudCoverage = aModel.getAverageCloudCoverage()
+                    $scope.model.minimumTemperature = aModel.getMinimumTemperature(dateStart,dateEnd)
+                    $scope.model.maximumTemperature = aModel.getMaximumTemperature(dateStart,dateEnd)
+                    $scope.model.totalPrecipitation = aModel.getTotalPrecipitation(dateStart,dateEnd)
+                    $scope.model.averageWindSpeed = aModel.getAverageWindSpeed(dateStart,dateEnd)
+                    $scope.model.dominantWindDirection = aModel.getDominantWindDirection(dateStart,dateEnd)
+                    $scope.model.averageCloudCoverage = aModel.getAverageCloudCoverage(dateStart,dateEnd)
                 });
         });
 }
