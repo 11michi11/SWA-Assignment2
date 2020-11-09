@@ -52,6 +52,14 @@ export default store => async ({type, ...params}) =>  {
         }
         break;
 
+        case 'updateHistoryDataFilter':
+            const {from,to} = params
+            console.log("Dispatcher request: updateHistoryDataFilter")
+            console.log("From: "+from)
+            console.log("To: "+to)
+            store({type,from,to})
+            break;
+
       default:
     }
 }

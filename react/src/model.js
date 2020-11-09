@@ -9,7 +9,6 @@ const model = (place,
                cloudPrediction,
                filter = () => true
 ) => {
-
     const reload = (
         place,               
         temperature,
@@ -32,26 +31,39 @@ const model = (place,
             filter
         )
 
-    const temperatureData = () => temperature?.filter(filter)
-    const precipitationData = () => precipitation?.filter(filter)
-    const windData = () => wind?.filter(filter)
-    const cloudData = () => cloud?.filter(filter)
-    const temperaturePredictionData = () => temperaturePrediction?.filter(filter)
-    const precipitationPredictionData = () => precipitationPrediction?.filter(filter)
-    const windPredictionData = () => windPrediction?.filter(filter)
-    const cloudPredictionData = () => cloudPrediction?.filter(filter)
+    const temperatureData = () => temperature?.filter(filter? x => filter: () => true)
+    console.log(filter)
+    console.log("temperature")
+    console.log(temperature)
+    console.log("temperatureData")
+    console.log(temperatureData().length)
+    const precipitationData = () => precipitation.filter(x=> filter)
+    console.log("precip")
+    console.log(precipitation)
+    console.log("precipitationData")
+    console.log(precipitationData().length)
+    const windData = () => wind?.filter(filter? filter: ()=>true)
+    const cloudData = () => cloud?.filter(filter? filter: ()=>true)
+    const temperaturePredictionData = () => temperaturePrediction?.filter(()=>true)
+    const precipitationPredictionData = () => precipitationPrediction?.filter(()=>true)
+    const windPredictionData = () => windPrediction?.filter(()=>true)
+    const cloudPredictionData = () => cloudPrediction?.filter(()=>true)
 
-    const filtered = filter => model(
+    const filtered = (from,to) => model(
         place,
-        temperatureData,
-        precipitationData,
-        windData,
-        cloudData,
-        temperaturePredictionData,
-        precipitationPredictionData,
-        windPredictionData,
-        cloudPredictionData,
-        filter
+        temperature,
+        precipitation,
+        wind,
+        cloud,
+        temperaturePrediction,
+        precipitationPrediction,
+        windPrediction,
+        cloudPrediction,
+        filter = (from,to,x) => {
+            console.log(from)
+            console.log(to)
+            console.log(x)
+            return from<=new Date(x.time) && new Date(x.time)<=to}
     )
 
     const latest = () => model(

@@ -227,7 +227,11 @@ function findDominantWindDirection(data) {
 export default dispatcher => model => {
     // let city = useRef();
     let city;
-    
+    let {min,max} = getMinMaxForHistoryDataTimeFilter();
+    console.log(min.slice(0,-1))
+    console.log(max.slice(0,-1))
+    let from;
+    let to;
 
 return (
     <div id='base'>       
@@ -235,7 +239,7 @@ return (
         <button onClick = {() => dispatcher()({type:'loadDataForPlace', place: 'Aarhus'})}>Aarhus</button>
         <button onClick = {() => dispatcher()({type:'loadDataForPlace', place: 'Copenhagen'})}>Copenhagen</button>
     
-    <select name='cities' onChange={console.log(this)} >
+    <select name='cities' onChange={event => console.log(event.target.value)} >
         <option value='CRIME' >Crime</option>
         <option value='HISTORY'>History</option>
         <option value='HORROR'>Horror</option>
@@ -247,6 +251,17 @@ return (
         // let xxx = React.findDOMNode(this.refs.cities);
         // console.log(xxx.value)
     }} */}
+
+    <p>Time interval for history data</p>
+    <p value={max}>From:</p>
+    <input type="datetime-local" defaultValue="2020-11-01T19:09:16.116" 
+        min={min.slice(-1)} max={max.slice(-1)} onChange={event => from = event.target.value}></input>
+
+    <p value={max}>To:</p>
+    <input type="datetime-local" defaultValue={max.slice(-1)} 
+        min={min.slice(-1)} max={max.slice(-1)} onChange={event => to = event.target.value}></input>
+
+    <button onClick = {() => dispatcher()({type:'updateHistoryDataFilter', from:new Date(from), to:new Date(to)})}>Update filter</button>
 
     <h1>Latest weather measurements</h1>
     <table id='weather_measurements'>
@@ -281,12 +296,22 @@ return (
         </tbody>
     </table>
     {/* <p>{findPlace(city)}</p> */}
-
     </div>
+
 )}
 
 
 function findPlace(city) {
     var button = city;
     return button.value;
+}
+
+function getMinMaxForHistoryDataTimeFilter() {
+    let max = new Date();
+    // let maxString = 
+    let test = max.getDate()
+    let test1 = new Date(max.getDate())
+    let min = new Date(max)
+    min.setDate(min.getDate()-7)
+    return {min:min.toISOString(),max:max.toISOString()}
 }

@@ -31,6 +31,12 @@ export default (init_model, view, renderer) => {
           cloudPrediction 
         )
 
+      case 'updateHistoryDataFilter':
+          const {from,to} = action
+          console.log("Store: updateHistoryDataFilter")
+          return model.filtered({from,to})
+          // return model.filtered(x => (from,to) => from<=new Date(x.time) && new Date(x.time)<=to)
+
       default:
         return model
     }
