@@ -36,7 +36,7 @@ export default store => async ({type, ...params}) =>  {
           const precipitationPrediction = forecastDataGrouped["precipitation"]
           const windPrediction = forecastDataGrouped["wind speed"]
           const cloudPrediction = forecastDataGrouped["cloud coverage"] 
-          
+
           store({
             type, 
             ...params,           
@@ -53,11 +53,15 @@ export default store => async ({type, ...params}) =>  {
         break;
 
         case 'updateHistoryDataFilter':
-            const {from,to} = params
+            const {historyFrom,historyTo} = params
             console.log("Dispatcher request: updateHistoryDataFilter")
-            console.log("From: "+from)
-            console.log("To: "+to)
-            store({type,from,to})
+            store({type,historyFrom,historyTo} )
+            break;
+
+        case 'updateForecastDataFilter':
+            const {forecastFrom,forecastTo} = params
+            console.log("Dispatcher request: updateForecastDataFilter")
+            store({type,forecastFrom,forecastTo} )
             break;
 
       default:

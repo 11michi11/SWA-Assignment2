@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'
+import React from 'react'
 
 const LatestData = ({model, dispatcher}) => {
 
@@ -225,13 +225,15 @@ function findDominantWindDirection(data) {
 }
 
 export default dispatcher => model => {
-    // let city = useRef();
-    let city;
     let {min,max} = getMinMaxForHistoryDataTimeFilter();
-    console.log(min.slice(0,-1))
-    console.log(max.slice(0,-1))
-    let from;
-    let to;
+    console.log("Min "+min)
+    console.log("Max "+max)
+    let historyFrom = model.historyFrom;
+    let historyTo = model.historyTo;
+   
+    let forecastFrom = model.forecastFrom;
+    let forecastTo = model.forecastTo;
+
 
 return (
     <div id='base'>       
@@ -239,29 +241,16 @@ return (
         <button onClick = {() => dispatcher()({type:'loadDataForPlace', place: 'Aarhus'})}>Aarhus</button>
         <button onClick = {() => dispatcher()({type:'loadDataForPlace', place: 'Copenhagen'})}>Copenhagen</button>
     
-    <select name='cities' onChange={event => console.log(event.target.value)} >
-        <option value='CRIME' >Crime</option>
-        <option value='HISTORY'>History</option>
-        <option value='HORROR'>Horror</option>
-        <option value='SCIFI'>SciFi</option>
-    </select>
-    
-    {/* {function onCityChanged(element) {
-        console.log(element.value)
-        // let xxx = React.findDOMNode(this.refs.cities);
-        // console.log(xxx.value)
-    }} */}
-
     <p>Time interval for history data</p>
     <p value={max}>From:</p>
-    <input type="datetime-local" defaultValue="2020-11-01T19:09:16.116" 
-        min={min.slice(-1)} max={max.slice(-1)} onChange={event => from = event.target.value}></input>
+    <input type="datetime-local" defaultValue={historyFrom.toISOString().slice(0,-8)} 
+        min={min} max={max} onChange={event => historyFrom = new Date(event.target.value)}></input>
 
     <p value={max}>To:</p>
-    <input type="datetime-local" defaultValue={max.slice(-1)} 
-        min={min.slice(-1)} max={max.slice(-1)} onChange={event => to = event.target.value}></input>
+    <input type="datetime-local" defaultValue={historyTo.toISOString().slice(0,-8)} 
+        min={min} max={max} onChange={event => historyTo = new Date(event.target.value)}></input>
 
-    <button onClick = {() => dispatcher()({type:'updateHistoryDataFilter', from:new Date(from), to:new Date(to)})}>Update filter</button>
+    <button onClick = {() => dispatcher()({type:'updateHistoryDataFilter', historyFrom, historyTo})}>Update filter</button>
 
     <h1>Latest weather measurements</h1>
     <table id='weather_measurements'>
@@ -281,6 +270,65 @@ return (
 
     <h1>Hourly predictions for the next 24 hours</h1>
     <h2>{model.place}</h2>
+
+    <label>Select interval from</label>
+        <select defaultValue={forecastFrom} onChange={event => forecastFrom = parseInt(event.target.value)}>
+            <option value="0">00:00</option>
+            <option value="1">01:00</option>
+            <option value="2">02:00</option>
+            <option value="3">03:00</option>
+            <option value="4">04:00</option>
+            <option value="5">05:00</option>
+            <option value="6">06:00</option>
+            <option value="7">07:00</option>
+            <option value="8">08:00</option>
+            <option value="9">09:00</option>
+            <option value="10">10:00</option>
+            <option value="11">11:00</option>
+            <option value="12">12:00</option>
+            <option value="13">13:00</option>
+            <option value="14">14:00</option>
+            <option value="15">15:00</option>
+            <option value="16">16:00</option>
+            <option value="17">17:00</option>
+            <option value="18">18:00</option>
+            <option value="19">19:00</option>
+            <option value="20">20:00</option>
+            <option value="21">21:00</option>
+            <option value="22">22:00</option>
+            <option value="23">23:00</option>
+        </select>
+
+        <label>to</label>
+        <select defaultValue={forecastTo} onChange={event => forecastTo = parseInt(event.target.value)}>
+            <option value="0">00:00</option>
+            <option value="1">01:00</option>
+            <option value="2">02:00</option>
+            <option value="3">03:00</option>
+            <option value="4">04:00</option>
+            <option value="5">05:00</option>
+            <option value="6">06:00</option>
+            <option value="7">07:00</option>
+            <option value="8">08:00</option>
+            <option value="9">09:00</option>
+            <option value="10">10:00</option>
+            <option value="11">11:00</option>
+            <option value="12">12:00</option>
+            <option value="13">13:00</option>
+            <option value="14">14:00</option>
+            <option value="15">15:00</option>
+            <option value="16">16:00</option>
+            <option value="17">17:00</option>
+            <option value="18">18:00</option>
+            <option value="19">19:00</option>
+            <option value="20">20:00</option>
+            <option value="21">21:00</option>
+            <option value="22">22:00</option>
+            <option value="23">23:00</option>
+        </select>
+
+        <button onClick = {() => dispatcher()({type:'updateForecastDataFilter', forecastFrom, forecastTo})}>Update filter</button>
+
     <table id='hourly_prediction_horsens'>
         <thead>
         <tr>
@@ -295,23 +343,14 @@ return (
             <HourlyPredictionsDataBody {...{model}}/>
         </tbody>
     </table>
-    {/* <p>{findPlace(city)}</p> */}
     </div>
 
 )}
 
-
-function findPlace(city) {
-    var button = city;
-    return button.value;
-}
-
 function getMinMaxForHistoryDataTimeFilter() {
     let max = new Date();
-    // let maxString = 
-    let test = max.getDate()
-    let test1 = new Date(max.getDate())
+    max.setDate(max.getDate()-1)
     let min = new Date(max)
     min.setDate(min.getDate()-7)
-    return {min:min.toISOString(),max:max.toISOString()}
+    return {min:min.toISOString().slice(0,-8),max:max.toISOString().slice(0,-8)}
 }

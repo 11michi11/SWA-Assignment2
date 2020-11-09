@@ -10,7 +10,7 @@ async function init() {
     try {
         let place = "Horsens"
         const data = await loadData(place);
-        const theModel = model(place,data.temperature,data.precipitation,data.wind,data.cloud,data.temperaturePrediction,data.precipitationPrediction,data.windPrediction,data.cloudPrediction)
+        const theModel = model(place,data.temperature,data.precipitation,data.wind,data.cloud,data.temperaturePrediction,data.precipitationPrediction,data.windPrediction,data.cloudPrediction,data.historyFrom,data.historyTo,data.forecastFrom,data.forecastTo)
         let renderer = dom => ReactDOM.render(dom, document.getElementById('root'))
         let theDispatcher
         const theView = view(() => theDispatcher)
@@ -45,6 +45,11 @@ async function loadData(place) {
     const windPrediction = forecastDataGrouped["wind speed"]
     const cloudPrediction = forecastDataGrouped["cloud coverage"]
     
+    const historyFrom = new Date(temperature[0].time)
+    const historyTo = new Date(temperature[temperature.length-1].time)
+    const forecastFrom = new Date(temperaturePrediction[0].time).getHours();
+    const forecastTo = new Date(temperaturePrediction[temperaturePrediction.length-1].time).getHours();
+
      return {          
         temperature,
         precipitation,
@@ -53,7 +58,11 @@ async function loadData(place) {
         temperaturePrediction,
         precipitationPrediction,
         windPrediction,
-        cloudPrediction
+        cloudPrediction,
+        historyFrom,
+        historyTo,
+        forecastFrom,
+        forecastTo
       }
 }
 

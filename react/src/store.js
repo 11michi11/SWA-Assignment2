@@ -32,10 +32,14 @@ export default (init_model, view, renderer) => {
         )
 
       case 'updateHistoryDataFilter':
-          const {from,to} = action
+          const {historyFrom,historyTo} = action
           console.log("Store: updateHistoryDataFilter")
-          return model.filtered({from,to})
-          // return model.filtered(x => (from,to) => from<=new Date(x.time) && new Date(x.time)<=to)
+          return model.historyFiltered(historyFrom,historyTo)
+
+      case 'updateForecastDataFilter':
+          const {forecastFrom,forecastTo} = action
+          console.log("Store: updateForecastDataFilter")
+          return model.forecastFiltered(forecastFrom,forecastTo)
 
       default:
         return model
