@@ -1,4 +1,5 @@
 export default store => async ({type, ...params}) =>  {
+  console.log("Dispatcher new request")
     switch(type) {
       case 'hire':
         const { id } = params
@@ -17,7 +18,58 @@ export default store => async ({type, ...params}) =>  {
         }
         break;
 
+      case 'loadDataForPlace':
+        const { place } = params
+        // console.log("Dispatcher request: loadDataForPlace + "+place)
+        if (place) {
+          const historyData = await fetch(`http://localhost:8080/data/${place}`).then(res => res.json())
+          const forecastData = await fetch(`http://localhost:8080/forecast/${place}`).then(res => res.json())
+          
+          const historyDataGrouped = groupDataByType(historyData)
+          const forecastDataGrouped = groupDataByType(forecastData)
+
+          const temperature = historyDataGrouped["temperature"]
+          const precipitation = historyDataGrouped["precipitation"]
+          const wind = historyDataGrouped["wind speed"]
+          const cloud = historyDataGrouped["cloud coverage"]
+          const temperaturePrediction = forecastDataGrouped["temperature"]
+          const precipitationPrediction = forecastDataGrouped["precipitation"]
+          const windPrediction = forecastDataGrouped["wind speed"]
+          const cloudPrediction = forecastDataGrouped["cloud coverage"] 
+          
+          store({
+            type, 
+            ...params,           
+            temperature,
+            precipitation,
+            wind,
+            cloud,
+            temperaturePrediction,
+            precipitationPrediction,
+            windPrediction,
+            cloudPrediction
+          })
+        }
+        break;
+
+        case 'updateHistoryDataFilter':
+            const {from,to} = params
+            // console.log("Dispatcher request: updateHistoryDataFilter")
+            // console.log("From: "+from)
+            // console.log("To: "+to)
+            store({type,from,to})
+            break;
+
       default:
     }
 }
 
+function groupDataByType(data) {
+    // Group by data type
+    return data.reduce((types, entry) => {
+      const type = (types[entry.type] || []);
+      type.push(entry);
+      types[entry.type] = type;
+      return types;
+  }, {});
+}
