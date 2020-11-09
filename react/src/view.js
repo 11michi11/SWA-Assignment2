@@ -230,8 +230,8 @@ export default dispatcher => model => {
     let {min,max} = getMinMaxForHistoryDataTimeFilter();
     console.log(min.slice(0,-1))
     console.log(max.slice(0,-1))
-    let from;
-    let to;
+    let fromDate = new Date("2020-11-01T19:09");
+    let toDate;
 
 return (
     <div id='base'>       
@@ -254,14 +254,16 @@ return (
 
     <p>Time interval for history data</p>
     <p value={max}>From:</p>
-    <input type="datetime-local" defaultValue="2020-11-01T19:09:16.116" 
-        min={min.slice(-1)} max={max.slice(-1)} onChange={event => from = event.target.value}></input>
+    <input type="datetime-local" defaultValue="2020-11-01T19:09"
+        min={min.slice(-1)} max={max.slice(-1)} onChange={event => fromDate = event.target.value}></input>
 
     <p value={max}>To:</p>
     <input type="datetime-local" defaultValue={max.slice(-1)} 
-        min={min.slice(-1)} max={max.slice(-1)} onChange={event => to = event.target.value}></input>
+        min={min.slice(-1)} max={max.slice(-1)} onChange={event => toDate = event.target.value}></input>
 
-    <button onClick = {() => dispatcher()({type:'updateHistoryDataFilter', from:new Date(from), to:new Date(to)})}>Update filter</button>
+    <button onClick = {() =>
+        dispatcher()({type:'updateHistoryDataFilter', from:new Date(fromDate), to:new Date(toDate)})
+    }>Update filter</button>
 
     <h1>Latest weather measurements</h1>
     <table id='weather_measurements'>

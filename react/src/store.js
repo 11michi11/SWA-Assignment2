@@ -34,6 +34,9 @@ export default (init_model, view, renderer) => {
       case 'updateHistoryDataFilter':
           const {from,to} = action
           console.log("Store: updateHistoryDataFilter")
+        console.log(model.temperatureData())
+        console.log("Filtered")
+        console.log(model.filtered({from,to}).temperatureData())
           return model.filtered({from,to})
           // return model.filtered(x => (from,to) => from<=new Date(x.time) && new Date(x.time)<=to)
 

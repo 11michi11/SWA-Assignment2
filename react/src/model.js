@@ -31,18 +31,18 @@ const model = (place,
             filter
         )
 
-    const temperatureData = () => temperature?.filter(filter? x => filter: () => true)
-    console.log(filter)
-    console.log("temperature")
-    console.log(temperature)
-    console.log("temperatureData")
-    console.log(temperatureData().length)
+    const temperatureData = () => temperature?.filter(filter)
+    // console.log(filter)
+    // console.log("temperature")
+    // console.log(temperature)
+    // console.log("temperatureData")
+    // console.log(temperatureData().length)
     const precipitationData = () => precipitation.filter(x=> filter)
-    console.log("precip")
-    console.log(precipitation)
-    console.log("precipitationData")
-    console.log(precipitationData().length)
-    const windData = () => wind?.filter(filter? filter: ()=>true)
+    // console.log("precip")
+    // console.log(precipitation)
+    // console.log("precipitationData")
+    // console.log(precipitationData().length)
+    const windData = () => wind.filter(filter)
     const cloudData = () => cloud?.filter(filter? filter: ()=>true)
     const temperaturePredictionData = () => temperaturePrediction?.filter(()=>true)
     const precipitationPredictionData = () => precipitationPrediction?.filter(()=>true)
@@ -60,9 +60,9 @@ const model = (place,
         windPrediction,
         cloudPrediction,
         filter = (from,to,x) => {
-            console.log(from)
-            console.log(to)
-            console.log(x)
+            console.log("From" + from)
+            console.log("To" + to)
+            console.log(from<=new Date(x.time) && new Date(x.time)<=to)
             return from<=new Date(x.time) && new Date(x.time)<=to}
     )
 
