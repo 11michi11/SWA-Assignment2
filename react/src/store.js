@@ -3,11 +3,7 @@ export default (init_model, view, renderer) => {
 
   function reducer(action, model) {
     switch(action.type) {
-      case 'hire':
-        const { employee, person } = action
-        return model.addEmployee(employee).updatePerson(person)
-
-      case 'loadDataForPlace':
+      case 'loadDataForPlace': case 'submit':
         const { 
           place,
           temperature,
