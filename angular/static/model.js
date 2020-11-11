@@ -28,149 +28,73 @@ const model = (place,
         cloud: cloud[cloud.length - 1],
     }
 
-    const getMinimumTemperature = (intervalStart, intervalEnd) => {
+    const getHistoryMeasurements = (intervalStart, intervalEnd) => {
         let result = []
-        if (intervalStart != null && intervalEnd != null) {
-            for (let i = 0; i < temperature.length; i++) {
+        /*
+        * considering that all data has same length
+        * */
+        for (let i = 0; i < temperature.length; i++) {
+            if (intervalStart != null && intervalEnd != null) {
                 let date = new Date(temperature[i].time)
+                /* set hour because of different timezone */
+                date.setHours(date.getHours() - 1)
                 if (date >= intervalStart && date <= intervalEnd) {
-                    result.push(temperature[i])
+                    result.push({
+                        temperature: temperature[i],
+                        precipitation: precipitation[i],
+                        wind: wind[i],
+                        cloud: cloud[i],
+                    })
                 }
             }
-        } else {
-            /*
-            * If interval is not selected return min temperature for last 5 days
-            * */
-            return Math.min(...temperature.slice(-5 * 24).map(entry => entry.value))
         }
-        return Math.min(...result.map(entry => entry.value))
-    }
-
-    const getMaximumTemperature = (intervalStart, intervalEnd) => {
-        let result = []
-        if (intervalStart != null && intervalEnd != null) {
-            for (let i = 0; i < temperature.length; i++) {
-                let date = new Date(temperature[i].time)
-                if (date >= intervalStart && date <= intervalEnd) {
-                    result.push(temperature[i])
-                }
-            }
-        } else {
-            /*
-           * If interval is not selected return max temperature for last 5 days
-           * */
-            return Math.max(...temperature.slice(-5 * 24).map(entry => entry.value))
-        }
-        return Math.max(...result.map(entry => entry.value))
-    }
-
-    const getTotalPrecipitation = (intervalStart, intervalEnd) => {
-        let result = []
-        if (intervalStart != null && intervalEnd != null) {
-            for (let i = 0; i < precipitation.length; i++) {
-                let date = new Date(precipitation[i].time)
-                if (date >= intervalStart && date <= intervalEnd) {
-                    result.push(precipitation[i])
-                }
-            }
-        } else {
-            /*
-           * If interval is not selected return precipitation for last 5 days
-           * */
-            return precipitation
-                .slice(-5 * 24)
-                .map(entry => entry.value)
-                .reduce((total, entry) => {
-                    return total + entry;
-                }, 0).toFixed(1)
-        }
+        console.log(result)
         return result
+    }
+
+    const getMinimumTemperature = () => {
+        return Math.min(...temperature.slice(-5 * 24).map(entry => entry.value))
+    }
+
+    const getMaximumTemperature = () => {
+        return Math.max(...temperature.slice(-5 * 24).map(entry => entry.value))
+    }
+
+    const getTotalPrecipitation = () => {
+        return precipitation
+            .slice(-5 * 24)
             .map(entry => entry.value)
             .reduce((total, entry) => {
                 return total + entry;
             }, 0).toFixed(1)
+
     }
 
-    const getAverageWindSpeed = (intervalStart, intervalEnd) => {
-        let result = []
-        if (intervalStart != null && intervalEnd != null) {
-            for (let i = 0; i < wind.length; i++) {
-                let date = new Date(wind[i].time)
-                if (date >= intervalStart && date <= intervalEnd) {
-                    result.push(wind[i])
-                }
-            }
-        } else {
-            /*
-           * If interval is not selected return wind speed for last 5 days
-           * */
-            return wind
-                .slice(-5 * 24)
-                .map(entry => entry.value)
-                .reduce((total, entry) => {
-                    return total + entry / wind.length;
-                }, 0).toFixed(1)
-        }
-        return result
+    const getAverageWindSpeed = () => {
+        return wind
+            .slice(-5 * 24)
             .map(entry => entry.value)
             .reduce((total, entry) => {
-                return total + entry / result.length;
+                return total + entry / wind.length;
             }, 0).toFixed(1)
+
     }
 
-    const getDominantWindDirection = (intervalStart, intervalEnd) => {
-        let result = []
-        if (intervalStart != null && intervalEnd != null) {
-            for (let i = 0; i < wind.length; i++) {
-                let date = new Date(wind[i].time)
-                if (date >= intervalStart && date <= intervalEnd) {
-                    result.push(wind[i])
-                }
-            }
-        } else {
-            /*
-           * If interval is not selected return wind direction for last 5 days
-           * */
-            return wind
-                .slice(-5 * 24)
-                .map(entry => entry.direction)
-                .sort((a, b) =>
-                    wind.filter(value => value === a).length - wind.filter(value => value === b).length
-                ).pop()
-        }
-        return result
+    const getDominantWindDirection = () => {
+        return wind
+            .slice(-5 * 24)
             .map(entry => entry.direction)
             .sort((a, b) =>
-                wind.filter(value => value === a).length - result.filter(value => value === b).length
+                wind.filter(value => value === a).length - wind.filter(value => value === b).length
             ).pop()
-
-
     }
 
-    const getAverageCloudCoverage = (intervalStart, intervalEnd) => {
-        let result = []
-        if (intervalStart != null && intervalEnd != null) {
-            for (let i = 0; i < cloud.length; i++) {
-                let date = new Date(cloud[i].time)
-                if (date >= intervalStart && date <= intervalEnd) {
-                    result.push(cloud[i])
-                }
-            }
-        } else {
-            /*
-           * If interval is not selected return cloud coverage for last 5 days
-           * */
-            return cloud
-                .slice(-5 * 24)
-                .map(entry => entry.value)
-                .reduce((total, entry) => {
-                    return total + entry / cloud.length;
-                }, 0).toFixed(1)
-        }
-        return result
+    const getAverageCloudCoverage = () => {
+        return cloud
+            .slice(-5 * 24)
             .map(entry => entry.value)
             .reduce((total, entry) => {
-                return total + entry / result.length;
+                return total + entry / cloud.length;
             }, 0).toFixed(1)
     }
 
@@ -204,6 +128,7 @@ const model = (place,
         place,
         all,
         lastMeasurement,
+        getHistoryMeasurements,
         getPredictions,
         getMinimumTemperature,
         getMaximumTemperature,

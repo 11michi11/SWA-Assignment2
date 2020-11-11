@@ -58,6 +58,43 @@ module.component('weatherMeasurementsTable', {
     }]
 })
 
+module.component('historyMeasurementsTable', {
+    bindings: {attribute: '@'},
+    template: `
+<p>{{$ctrl.model.place}}</p>
+<table>
+    <thead>
+        <tr>
+            <td>Temperature</td>
+            <td>Precipitation</td>
+            <td>Wind Speed</td>
+            <td>Cloud coverage</td>
+        </tr>
+    </thead>
+        <tbody>
+          <tr ng-repeat="data in $ctrl.model.historyData">
+              <td>{{$ctrl.formatTemp(data.temperature)}}</td>
+              <td>{{$ctrl.formatPrecipitation(data.precipitation)}}</td>
+              <td>{{$ctrl.formatWind(data.wind)}}</td>
+              <td>{{$ctrl.formatCloud(data.cloud)}}</td>
+          </tr>
+    </tbody>
+</table>`,
+    controller: ['$model', '$scope', function ($model, $scope) {
+        this.model = $model
+        this.changePlace = $scope.$parent.changePlace
+        this.reload = $scope.$parent.reload
+        this.formatTemp = $scope.$parent.formatTemp
+        this.formatHourlyTemp = $scope.$parent.formatHourlyTemp
+        this.formatPrecipitation = $scope.$parent.formatPrecipitation
+        this.formatHourlyPrecipitation = $scope.$parent.formatHourlyPrecipitation
+        this.formatWind = $scope.$parent.formatWind
+        this.formatHourlyWind = $scope.$parent.formatHourlyWind
+        this.formatCloud = $scope.$parent.formatCloud
+        this.formatHourlyCloud = $scope.$parent.formatHourlyCloud
+    }]
+})
+
 module.component('temperatureTable', {
     bindings: {attribute: '@'},
     template: `
@@ -222,7 +259,6 @@ module.component('hourlyPredictionTable', {
     }]
 })
 
-
 const temperatureType = 'temperature'
 const precipitationType = 'precipitation'
 const windType = 'wind speed'
@@ -296,13 +332,14 @@ function loadData($scope, $model, $http, place,intervalStart,intervalEnd,dateSta
                     );
                     $scope.model.data = aModel
                     $scope.model.lastMeasurements = aModel.lastMeasurement
+                    $scope.model.historyData = aModel.getHistoryMeasurements(dateStart,dateEnd)
                     $scope.model.predictions = aModel.getPredictions(intervalStart, intervalEnd)
-                    $scope.model.minimumTemperature = aModel.getMinimumTemperature(dateStart,dateEnd)
-                    $scope.model.maximumTemperature = aModel.getMaximumTemperature(dateStart,dateEnd)
-                    $scope.model.totalPrecipitation = aModel.getTotalPrecipitation(dateStart,dateEnd)
-                    $scope.model.averageWindSpeed = aModel.getAverageWindSpeed(dateStart,dateEnd)
-                    $scope.model.dominantWindDirection = aModel.getDominantWindDirection(dateStart,dateEnd)
-                    $scope.model.averageCloudCoverage = aModel.getAverageCloudCoverage(dateStart,dateEnd)
+                    $scope.model.minimumTemperature = aModel.getMinimumTemperature()
+                    $scope.model.maximumTemperature = aModel.getMaximumTemperature()
+                    $scope.model.totalPrecipitation = aModel.getTotalPrecipitation()
+                    $scope.model.averageWindSpeed = aModel.getAverageWindSpeed()
+                    $scope.model.dominantWindDirection = aModel.getDominantWindDirection()
+                    $scope.model.averageCloudCoverage = aModel.getAverageCloudCoverage()
                 });
         });
 }

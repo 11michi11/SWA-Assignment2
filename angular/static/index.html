@@ -82,11 +82,14 @@
         <weather-measurements-table id='weather'  attribute="data">
         </weather-measurements-table>
 
-        <br> <br> <br>
+        <h1>History of measurements</h1>
         <label>Choose date interval from </label>
         <input type="datetime-local" ng-model="model.dateStart" ng-change="changeDateInterval()">
         <label>to</label>
         <input type="datetime-local" ng-model="model.dateEnd" ng-change="changeDateInterval()">
+        <br> <br>
+        <history-measurements-table>
+        </history-measurements-table>
 
         <h1>Maximum and Minimum temperate for last 5 days</h1>
         <temperature-table >
