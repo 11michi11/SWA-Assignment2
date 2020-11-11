@@ -52,6 +52,7 @@ const model = (place,
         if(historyFrom && historyTo) {
             return data.filter(x => {
                 let date = new Date(x.time)
+                date.setHours(date.getHours()-1);
                 let result = historyFrom<=date && date<=historyTo
                 return result})
         }
@@ -71,7 +72,7 @@ const model = (place,
                         return date.getHours()<=forecastTo
                     }
                 } else {
-                    if(date.getDay() === now.getDay() && forecastFrom<=now.getHours() && forecastTo>now.getHours()) {
+                    if(date.getDay() !== now.getDay() && forecastFrom<=now.getHours() && forecastTo>now.getHours()) {
                         return false;
                     }
                     return forecastFrom<=date.getHours() && date.getHours()<=forecastTo
@@ -118,20 +119,20 @@ const model = (place,
 
     const latest = () => model(
         place,
-        findLatest(temperatureData()),
-        findLatest(precipitationData()),
-        findLatest(windData()),
-        findLatest(cloudData()),
+        findLatest(temperature),
+        findLatest(precipitation),
+        findLatest(wind),
+        findLatest(cloud),
         historyFrom,
         historyTo
     )
 
     const lastFive = () => model(
         place,
-        getLastFive(temperatureData()),
-        getLastFive(precipitationData()),
-        getLastFive(windData()),
-        getLastFive(cloudData())
+        getLastFive(temperature),
+        getLastFive(precipitation),
+        getLastFive(wind),
+        getLastFive(cloud)
     )
 
     const all = () => model(
@@ -180,5 +181,5 @@ function findLatest(data) {
 }
 
 function getLastFive(data) {
-    return data.slice(-5);
+    return data.slice(-5*24);
 }

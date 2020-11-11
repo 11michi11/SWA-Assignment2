@@ -66,6 +66,20 @@ export default dispatcher => model => {
 
             <br/>
             <button onClick = {() => dispatcher()({type:'submit', newData})}>Submit new data</button>
+
+            <h1>Latest weather measurements for {model.place}</h1>
+            <table id='latest_weather_measurement'>
+                <thead>
+                    <tr>
+                        <td>Place</td>
+                        <td>Temperature</td>
+                        <td>Precipitation</td>
+                        <td>Wind Speed</td>
+                        <td>Cloud coverage</td>
+                    </tr>
+                </thead>
+                <LatestDataBody {...{model}}/>
+            </table>
         
             <p>Time interval for history data</p>
             <p value={max}>From:</p>
@@ -77,19 +91,20 @@ export default dispatcher => model => {
                 min={min} max={max} onChange={event => historyTo = new Date(event.target.value)}></input>
 
             <button onClick = {() => dispatcher()({type:'updateHistoryDataFilter', historyFrom, historyTo})}>Update filter</button>
-
-            <h1>Latest weather measurements</h1>
+            
+            <h1>Weather measurements within chosen interval</h1>
             <table id='weather_measurements'>
                 <thead>
                     <tr>
-                        <td>Place</td>
                         <td>Temperature</td>
                         <td>Precipitation</td>
                         <td>Wind Speed</td>
                         <td>Cloud coverage</td>
                     </tr>
                 </thead>
-                <LatestDataBody {...{model,dispatcher}}/>
+                <tbody>
+                    <WeatherMeasurementsDataBody {...{model,dispatcher}}/>
+                </tbody>
             </table>
 
             <LastFiveTables {...{model}}/> 
@@ -271,6 +286,27 @@ const LastFiveTables = ({model}) => {
         </div>
     )
 }
+
+const WeatherMeasurementsDataBody = ({model}) => {     
+    let rows = [];
+    for (let index = 0; index < model.temperatureData().length; index++) {
+        rows.push(<WeatherMeasurementsDataRow key={index.toString()} {...{model,index}}/>)                    
+    }
+    return rows;
+}
+
+const WeatherMeasurementsDataRow = (props) => (
+    <tr>
+        <WeatherMeasurementsData {...props}/>
+    </tr>
+)
+
+const WeatherMeasurementsData = ({model,index}) => ([
+    <td key='temperature'>{formatTemp(model.temperatureData()[index])}</td>,
+    <td key='precipitation'>{formatPrecipitation(model.precipitationData()[index])}</td>,
+    <td key='wind'>{formatWind(model.windData()[index])}</td>,
+    <td key='cloud'>{formatCloud(model.cloudData()[index])}</td>
+])
 
 const TemperatureMinMaxData = ({lastFive}) => ([
     <td key='place'>{lastFive.place}</td>,
