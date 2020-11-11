@@ -48,7 +48,6 @@ const model = (place,
                 }
             }
         }
-        console.log(result)
         return result
     }
 
@@ -101,27 +100,37 @@ const model = (place,
     const getPredictions = (intervalStart, intervalEnd) => {
         let result = []
         for (let i = 0; i < 24; i++) {
-            if (intervalStart != null && intervalEnd != null) {
-                let date = new Date(temperaturePrediction[i].time)
-                if (date.getHours() >= intervalStart && date.getHours() <= intervalEnd) {
+            let date = new Date(temperaturePrediction[i].time)
+            if (filterPredictions(intervalStart, intervalEnd, date)) {
                     result.push({
                         temperature: temperaturePrediction[i],
                         precipitation: precipitationPrediction[i],
                         wind: windPrediction[i],
                         cloud: cloudPrediction[i],
                     })
-                    result.sort()
-                }
-            } else {
-                result.push({
-                    temperature: temperaturePrediction[i],
-                    precipitation: precipitationPrediction[i],
-                    wind: windPrediction[i],
-                    cloud: cloudPrediction[i],
-                })
             }
         }
         return result
+    }
+
+    const filterPredictions = (intervalStart, intervalEnd, date) => {
+        if(intervalStart != null && intervalEnd != null) {
+            let now = new Date()
+                if(intervalStart > intervalEnd) {
+                    if(date.getDay() === now.getDay()) {
+                        return intervalStart<=date.getHours()
+                    } else {
+                        return date.getHours()<=intervalEnd
+                    }
+                } else {
+                    if(date.getDay() !== now.getDay() && intervalStart<=now.getHours() && intervalEnd>now.getHours()) {
+                        return false;
+                    }
+                    return intervalStart<=date.getHours() && date.getHours()<=intervalEnd
+                }
+        } else {
+            return true
+        }
     }
 
     return {
