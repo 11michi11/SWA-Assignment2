@@ -1,31 +1,197 @@
-import React, { useRef } from 'react'
+import React from 'react'
 
-const LatestData = ({model, dispatcher}) => {
+export default dispatcher => model => {
+    let {min,max} = getMinMaxForHistoryDataTimeFilter();
 
+    let historyFrom = model.historyFrom;
+    let historyTo = model.historyTo;
+   
+    let forecastFrom = model.forecastFrom;
+    let forecastTo = model.forecastTo;
+
+    let newData = {};
+    newData.place = model.place
+
+    return (
+        <div id='base'>       
+            <button onClick = {() => dispatcher()({type:'loadDataForPlace', place: 'Horsens'})}>Horsens</button>
+            <button onClick = {() => dispatcher()({type:'loadDataForPlace', place: 'Aarhus'})}>Aarhus</button>
+            <button onClick = {() => dispatcher()({type:'loadDataForPlace', place: 'Copenhagen'})}>Copenhagen</button>
+            <button onClick = {() => dispatcher()({type:'loadDataForPlace', place: model.place})}>Reload</button>
+        
+            <h3>Add weather data</h3>
+            <label>Choose city:</label>
+            <select defaultValue={newData.place} onChange={event => newData.place=event.target.value}>
+                <option value="Horsens">Horsens</option>
+                <option value="Aarhus">Aarhus</option>
+                <option value="Copenhagen">Copenhagen</option>
+            </select>
+
+            <br/>
+            <label>Add temperature:</label>
+            <input type="text" id="temperature" onChange={event => newData.temperature=event.target.value}/>
+            <label >°C</label>
+
+            <br/>
+            <label>Add precipitation:</label>
+            <input type="text" id="precipitation" onChange={event => newData.precipitation=event.target.value}/>
+            <label >mm</label>
+
+            <br/>
+            <label>Add precipitation type:</label>
+            <input type="text" id="precipitation_type" onChange={event => newData.precipitationType=event.target.value}/>
+
+            <br/>
+            <label>Add wind speed:</label>
+            <input type="text" id="wind_speed" onChange={event => newData.wind=event.target.value}/>
+            <label >m/s</label>
+
+            <br/>
+            <label>Add wind direction:</label>
+            <select onChange={event => newData.windDirection=event.target.value}>
+                <option value="Northwest">Northwest</option>
+                <option value="North">North</option>
+                <option value="Northeast">Northeast</option>
+                <option value="East">East</option>
+                <option value="Southeast">Southeast</option>
+                <option value="South">South</option>
+                <option value="Southwest">Southwest</option>
+                <option value="West">West</option>
+            </select>
+
+            <br/>
+            <label>Add cloud coverage:</label>
+            <input type="text" id="cloud" onChange={event => newData.cloud=event.target.value}/>
+            <label >%</label>
+
+            <br/>
+            <button onClick = {() => dispatcher()({type:'submit', newData})}>Submit new data</button>
+        
+            <p>Time interval for history data</p>
+            <p value={max}>From:</p>
+            <input type="datetime-local" defaultValue={historyFrom.toISOString().slice(0,-8)} 
+                min={min} max={max} onChange={event => historyFrom = new Date(event.target.value)}></input>
+
+            <p value={max}>To:</p>
+            <input type="datetime-local" defaultValue={historyTo.toISOString().slice(0,-8)} 
+                min={min} max={max} onChange={event => historyTo = new Date(event.target.value)}></input>
+
+            <button onClick = {() => dispatcher()({type:'updateHistoryDataFilter', historyFrom, historyTo})}>Update filter</button>
+
+            <h1>Latest weather measurements</h1>
+            <table id='weather_measurements'>
+                <thead>
+                    <tr>
+                        <td>Place</td>
+                        <td>Temperature</td>
+                        <td>Precipitation</td>
+                        <td>Wind Speed</td>
+                        <td>Cloud coverage</td>
+                    </tr>
+                </thead>
+                <LatestDataBody {...{model,dispatcher}}/>
+            </table>
+
+            <LastFiveTables {...{model}}/> 
+
+            <h1>Hourly predictions for the next 24 hours</h1>
+            <h2>{model.place}</h2>
+
+            <label>Select interval from</label>
+            <select defaultValue={forecastFrom} onChange={event => forecastFrom = parseInt(event.target.value)}>
+                <option value="0">00:00</option>
+                <option value="1">01:00</option>
+                <option value="2">02:00</option>
+                <option value="3">03:00</option>
+                <option value="4">04:00</option>
+                <option value="5">05:00</option>
+                <option value="6">06:00</option>
+                <option value="7">07:00</option>
+                <option value="8">08:00</option>
+                <option value="9">09:00</option>
+                <option value="10">10:00</option>
+                <option value="11">11:00</option>
+                <option value="12">12:00</option>
+                <option value="13">13:00</option>
+                <option value="14">14:00</option>
+                <option value="15">15:00</option>
+                <option value="16">16:00</option>
+                <option value="17">17:00</option>
+                <option value="18">18:00</option>
+                <option value="19">19:00</option>
+                <option value="20">20:00</option>
+                <option value="21">21:00</option>
+                <option value="22">22:00</option>
+                <option value="23">23:00</option>
+            </select>
+
+            <label>to</label>
+            <select defaultValue={forecastTo} onChange={event => forecastTo = parseInt(event.target.value)}>
+                <option value="0">00:00</option>
+                <option value="1">01:00</option>
+                <option value="2">02:00</option>
+                <option value="3">03:00</option>
+                <option value="4">04:00</option>
+                <option value="5">05:00</option>
+                <option value="6">06:00</option>
+                <option value="7">07:00</option>
+                <option value="8">08:00</option>
+                <option value="9">09:00</option>
+                <option value="10">10:00</option>
+                <option value="11">11:00</option>
+                <option value="12">12:00</option>
+                <option value="13">13:00</option>
+                <option value="14">14:00</option>
+                <option value="15">15:00</option>
+                <option value="16">16:00</option>
+                <option value="17">17:00</option>
+                <option value="18">18:00</option>
+                <option value="19">19:00</option>
+                <option value="20">20:00</option>
+                <option value="21">21:00</option>
+                <option value="22">22:00</option>
+                <option value="23">23:00</option>
+            </select>
+
+            <button onClick = {() => dispatcher()({type:'updateForecastDataFilter', forecastFrom, forecastTo})}>Update filter</button>
+
+            <table id='hourly_prediction_horsens'>
+                <thead>
+                    <tr>
+                        <td>Hour</td>
+                        <td>Temperature</td>
+                        <td>Precipitation</td>
+                        <td>Wind Speed</td>
+                        <td>Cloud coverage</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <HourlyPredictionsDataBody {...{model}}/>
+                </tbody>
+            </table>
+        </div>
+)}
+
+const LatestData = ({model}) => {
     let latest = model.latest();
     return [
         <td key='place'>{latest.place}</td>,
         <td key='temperature'>{formatTemp(latest.temperatureData()[0])}</td>,
         <td key='precipitation'>{formatPrecipitation(latest.precipitationData()[0])}</td>,
         <td key='wind'>{formatWind(latest.windData()[0])}</td>,
-        <td key='cloud'>{formatCloud(latest.cloudData()[0])}</td>,
-        <td key='reload'>
-                <button onClick = {() => dispatcher()({type:'loadDataForPlace', place: latest.place})}>Reload</button>
-        </td>
+        <td key='cloud'>{formatCloud(latest.cloudData()[0])}</td>
     ] 
 }
 
-const LatestDataBody = ({model, dispatcher}) => (
+const LatestDataBody = ({model}) => (
     <tbody>
         <tr>
-            <LatestData {...{model,dispatcher}}/>
+            <LatestData {...{model}}/>
         </tr>
     </tbody>
 )
 
 const LastFiveTables = ({model}) => {
-    console.log("LastFIve")
-    console.log(this)
     let lastFive = model.lastFive()
     return (
         <div>
@@ -156,52 +322,54 @@ const HourlyPredictionsData = ({model,index}) => ([
 ])
 
 function formatHour(data) {
-    let date = new Date(data.time)
-    return `${date.getHours()}:${date.getMinutes()}0`
+    if(data) {
+        let date = new Date(data.time)
+        return `${date.getHours()}:${date.getMinutes()}0`
+    }
 }
 
 function formatTemp(temp) {
-    return `${temp.value} ${temp.unit} at ${temp.time}`
+    if(temp) return `${temp.value} ${temp.unit} at ${temp.time}`
 }
 
 function formatHourlyTemp(temp) {
-    return `from ${temp.from} ${temp.unit} to ${temp.to} ${temp.unit}`
+    if(temp) return `from ${temp.from} ${temp.unit} to ${temp.to} ${temp.unit}`
 }
 
 function formatPrecipitation(prec) {
-    return `${prec.value}${prec.unit} of ${prec.precipitation_type} at ${prec.time}`
+    if(prec) return `${prec.value}${prec.unit} of ${prec.precipitation_type} at ${prec.time}`
 }
 
 function formatHourlyPrecipitation(prec) {
-    return `from ${prec.from}${prec.unit} to ${prec.to}${prec.unit} of ${prec.precipitation_types.join(", ")} `
+    if(prec) return `from ${prec.from}${prec.unit} to ${prec.to}${prec.unit} of ${prec.precipitation_types.join(", ")} `
 }
 
 function formatWind(wind) {
-    return `${wind.value}${wind.unit} from ${wind.direction} at ${wind.time}`
+    if(wind) return `${wind.value}${wind.unit} from ${wind.direction} at ${wind.time}`
 }
 
 function formatHourlyWind(wind) {
-    return `from ${wind.from} ${wind.unit} to ${wind.to} ${wind.unit} from directions: ${wind.directions.join(", ")} `
+    if(wind) return `from ${wind.from} ${wind.unit} to ${wind.to} ${wind.unit} from directions: ${wind.directions.join(", ")} `
 }
 
 function formatCloud(cloud) {
-    return `${cloud.value}${cloud.unit} at ${cloud.time}`
+    if(cloud) return `${cloud.value}${cloud.unit} at ${cloud.time}`
 }
 
 function formatHourlyCloud(cloud) {
-    return `from ${cloud.from} ${cloud.unit} to ${cloud.to} ${cloud.unit}`
+    if(cloud) return `from ${cloud.from} ${cloud.unit} to ${cloud.to} ${cloud.unit}`
 }
 
 function findMinimumTemperature(data) {
-    return Math.min(...data.map(entry => entry.value)).toString();
+    if(data && data.length > 0) return Math.min(...data.map(entry => entry.value)).toString();
 }
 
 function findMaximumTemperature(data) {
-    return Math.max(...data.map(entry => entry.value)).toString();
+    if(data && data.length > 0) return Math.max(...data.map(entry => entry.value)).toString();
 }
 
 function findTotalPrecipitation(data) {
-    return data
+    if(data && data.length > 0) return data
         .map(entry => entry.value)
         .reduce((total, entry) => {
             return total + entry;
@@ -209,7 +377,7 @@ function findTotalPrecipitation(data) {
 }
 
 function findAverage(data) {
-    return data
+    if(data && data.length > 0) return data
         .map(entry => entry.value)
         .reduce((total, entry) => {
             return total + entry / data.length;
@@ -217,103 +385,16 @@ function findAverage(data) {
 }
 
 function findDominantWindDirection(data) {
-    return data
+    if(data && data.length > 0) return data
         .map(entry => entry.direction)
         .sort((a, b) =>
             data.filter(value => value === a).length - data.filter(value => value === b).length
         ).pop()
 }
 
-export default dispatcher => model => {
-    // let city = useRef();
-    let city;
-    let {min,max} = getMinMaxForHistoryDataTimeFilter();
-    console.log(min.slice(0,-1))
-    console.log(max.slice(0,-1))
-    let fromDate = new Date("2020-11-01T19:09");
-    let toDate;
-
-return (
-    <div id='base'>       
-        <button onClick = {() => dispatcher()({type:'loadDataForPlace', place: 'Horsens'})}>Horsens</button>
-        <button onClick = {() => dispatcher()({type:'loadDataForPlace', place: 'Aarhus'})}>Aarhus</button>
-        <button onClick = {() => dispatcher()({type:'loadDataForPlace', place: 'Copenhagen'})}>Copenhagen</button>
-    
-    <select name='cities' onChange={event => console.log(event.target.value)} >
-        <option value='CRIME' >Crime</option>
-        <option value='HISTORY'>History</option>
-        <option value='HORROR'>Horror</option>
-        <option value='SCIFI'>SciFi</option>
-    </select>
-    
-    {/* {function onCityChanged(element) {
-        console.log(element.value)
-        // let xxx = React.findDOMNode(this.refs.cities);
-        // console.log(xxx.value)
-    }} */}
-
-    <p>Time interval for history data</p>
-    <p value={max}>From:</p>
-    <input type="datetime-local" defaultValue="2020-11-01T19:09"
-        min={min.slice(-1)} max={max.slice(-1)} onChange={event => fromDate = event.target.value}></input>
-
-    <p value={max}>To:</p>
-    <input type="datetime-local" defaultValue={max.slice(-1)} 
-        min={min.slice(-1)} max={max.slice(-1)} onChange={event => toDate = event.target.value}></input>
-
-    <button onClick = {() =>
-        dispatcher()({type:'updateHistoryDataFilter', from:new Date(fromDate), to:new Date(toDate)})
-    }>Update filter</button>
-
-    <h1>Latest weather measurements</h1>
-    <table id='weather_measurements'>
-        <thead>
-        <tr>
-            <td>Place</td>
-            <td>Temperature</td>
-            <td>Precipitation</td>
-            <td>Wind Speed</td>
-            <td>Cloud coverage</td>
-        </tr>
-        </thead>
-        <LatestDataBody {...{model,dispatcher}}/>
-    </table>
-
-    <LastFiveTables {...{model}}/> 
-
-    <h1>Hourly predictions for the next 24 hours</h1>
-    <h2>{model.place}</h2>
-    <table id='hourly_prediction_horsens'>
-        <thead>
-        <tr>
-            <td>Hour</td>
-            <td>Temperature</td>
-            <td>Precipitation</td>
-            <td>Wind Speed</td>
-            <td>Cloud coverage</td>
-        </tr>
-        </thead>
-        <tbody>
-            <HourlyPredictionsDataBody {...{model}}/>
-        </tbody>
-    </table>
-    {/* <p>{findPlace(city)}</p> */}
-    </div>
-
-)}
-
-
-function findPlace(city) {
-    var button = city;
-    return button.value;
-}
-
 function getMinMaxForHistoryDataTimeFilter() {
     let max = new Date();
-    // let maxString = 
-    let test = max.getDate()
-    let test1 = new Date(max.getDate())
     let min = new Date(max)
-    min.setDate(min.getDate()-7)
-    return {min:min.toISOString(),max:max.toISOString()}
+    min.setDate(min.getDate()-8)
+    return {min:min.toISOString().slice(0,-8),max:max.toISOString().slice(0,-8)}
 }

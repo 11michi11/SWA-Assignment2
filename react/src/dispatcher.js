@@ -1,64 +1,43 @@
 export default store => async ({type, ...params}) =>  {
   console.log("Dispatcher new request")
     switch(type) {
-      case 'hire':
-        const { id } = params
-        const salary = window.prompt('Salary?')
-        if (salary) {
+      case 'submit':
+        const { newData } = params
+        if (newData) {
+          let preparedData = prepareDataForSubmit(newData)
+          console.log("Dispatcher request: submit")
+          console.log("Data: "+JSON.stringify(preparedData))
           const headers = { 'Content-Type': 'application/json', Accept: 'application/json' }
-          const employee = await fetch('http://localhost:9090/employees',
+          const submitStatus = await fetch('http://localhost:8080/data',
             { method: 'POST', 
-              body: JSON.stringify({ salary, manager: false }), 
-              headers}).then(res => res.json())
-          const person = await fetch('http://localhost:9090/persons/' + id,
-            { method: 'PATCH', 
-              body: JSON.stringify({ employeeId: employee.employeeId }), 
-              headers}).then(res => res.json())
-          store({type, ...params, employee, person})
+              body: JSON.stringify(preparedData), 
+              headers}).then(res => res.status)
+          console.log("Server responded with status code:"+submitStatus)
+          if(submitStatus === 201) {
+            loadAndStoreData({store,type,place:newData.place})
+          } 
         }
         break;
 
       case 'loadDataForPlace':
         const { place } = params
-        // console.log("Dispatcher request: loadDataForPlace + "+place)
+        console.log("Dispatcher request: loadDataForPlace + "+place)
         if (place) {
-          const historyData = await fetch(`http://localhost:8080/data/${place}`).then(res => res.json())
-          const forecastData = await fetch(`http://localhost:8080/forecast/${place}`).then(res => res.json())
-          
-          const historyDataGrouped = groupDataByType(historyData)
-          const forecastDataGrouped = groupDataByType(forecastData)
-
-          const temperature = historyDataGrouped["temperature"]
-          const precipitation = historyDataGrouped["precipitation"]
-          const wind = historyDataGrouped["wind speed"]
-          const cloud = historyDataGrouped["cloud coverage"]
-          const temperaturePrediction = forecastDataGrouped["temperature"]
-          const precipitationPrediction = forecastDataGrouped["precipitation"]
-          const windPrediction = forecastDataGrouped["wind speed"]
-          const cloudPrediction = forecastDataGrouped["cloud coverage"] 
-          
-          store({
-            type, 
-            ...params,           
-            temperature,
-            precipitation,
-            wind,
-            cloud,
-            temperaturePrediction,
-            precipitationPrediction,
-            windPrediction,
-            cloudPrediction
-          })
+          loadAndStoreData({store,type,place})
         }
         break;
 
-        case 'updateHistoryDataFilter':
-            const {from,to} = params
-            // console.log("Dispatcher request: updateHistoryDataFilter")
-            // console.log("From: "+from)
-            // console.log("To: "+to)
-            store({type,from,to})
-            break;
+      case 'updateHistoryDataFilter':
+        const {historyFrom,historyTo} = params
+        console.log("Dispatcher request: updateHistoryDataFilter")
+        store({type,historyFrom,historyTo})
+        break;
+
+      case 'updateForecastDataFilter':
+        const {forecastFrom,forecastTo} = params
+        console.log("Dispatcher request: updateForecastDataFilter")
+        store({type,forecastFrom,forecastTo})
+        break;
 
       default:
     }
@@ -72,4 +51,66 @@ function groupDataByType(data) {
       types[entry.type] = type;
       return types;
   }, {});
+}
+
+function prepareDataForSubmit(data) {
+  let date = new Date().toISOString()
+  let preparedData = [{
+      "type": "temperature",
+      "time": date,
+      "place": data.place,
+      "value": Number(data.temperature),
+      "unit": "C"
+  }, {
+      "type": "precipitation",
+      "time": date,
+      "place": data.place,
+      "value": Number(data.precipitation),
+      "unit": "mm",
+      "precipitation_type": data.precipitationType
+  }, {
+      "type": "wind speed",
+      "time": date,
+      "place": data.place,
+      "value": Number(data.wind),
+      "unit": "m/s",
+      "direction": data.windDirection
+  }, {
+      "type": "cloud coverage",
+      "time": date,
+      "place": data.place,
+      "value": Number(data.cloud),
+      "unit": "%"
+  }]
+  return preparedData;
+}
+
+async function loadAndStoreData({store,type,place}) {
+  const historyData = await fetch(`http://localhost:8080/data/${place}`).then(res => res.json())
+  const forecastData = await fetch(`http://localhost:8080/forecast/${place}`).then(res => res.json())
+  
+  const historyDataGrouped = groupDataByType(historyData)
+  const forecastDataGrouped = groupDataByType(forecastData)
+
+  const temperature = historyDataGrouped["temperature"]
+  const precipitation = historyDataGrouped["precipitation"]
+  const wind = historyDataGrouped["wind speed"]
+  const cloud = historyDataGrouped["cloud coverage"]
+  const temperaturePrediction = forecastDataGrouped["temperature"]
+  const precipitationPrediction = forecastDataGrouped["precipitation"]
+  const windPrediction = forecastDataGrouped["wind speed"]
+  const cloudPrediction = forecastDataGrouped["cloud coverage"] 
+  
+  store({
+    type,
+    place, 
+    temperature,
+    precipitation,
+    wind,
+    cloud,
+    temperaturePrediction,
+    precipitationPrediction,
+    windPrediction,
+    cloudPrediction
+  })
 }

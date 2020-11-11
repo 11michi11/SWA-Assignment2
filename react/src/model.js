@@ -7,6 +7,10 @@ const model = (place,
                precipitationPrediction,
                windPrediction,
                cloudPrediction,
+               historyFrom,
+               historyTo,
+               forecastFrom,
+               forecastTo,
                filter = () => true
 ) => {
     const reload = (
@@ -28,28 +32,57 @@ const model = (place,
             precipitationPrediction,
             windPrediction,
             cloudPrediction,
+            historyFrom,
+            historyTo,
+            forecastFrom,
+            forecastTo,
             filter
         )
 
-    const temperatureData = () => temperature?.filter(filter)
-    // console.log(filter)
-    // console.log("temperature")
-    // console.log(temperature)
-    // console.log("temperatureData")
-    // console.log(temperatureData().length)
-    const precipitationData = () => precipitation.filter(x=> filter)
-    // console.log("precip")
-    // console.log(precipitation)
-    // console.log("precipitationData")
-    // console.log(precipitationData().length)
-    const windData = () => wind.filter(filter)
-    const cloudData = () => cloud?.filter(filter? filter: ()=>true)
-    const temperaturePredictionData = () => temperaturePrediction?.filter(()=>true)
-    const precipitationPredictionData = () => precipitationPrediction?.filter(()=>true)
-    const windPredictionData = () => windPrediction?.filter(()=>true)
-    const cloudPredictionData = () => cloudPrediction?.filter(()=>true)
+    const temperatureData = () => filterHistoryData(temperature)
+    const precipitationData = () => filterHistoryData(precipitation)
+    const windData = () => filterHistoryData(wind)
+    const cloudData = () => filterHistoryData(cloud)
+    const temperaturePredictionData = () => filterForecastData(temperaturePrediction)
+    const precipitationPredictionData = () => filterForecastData(precipitationPrediction)
+    const windPredictionData = () => filterForecastData(windPrediction)
+    const cloudPredictionData = () => filterForecastData(cloudPrediction)
 
-    const filtered = (from,to) => model(
+    function filterHistoryData(data) {
+        if(historyFrom && historyTo) {
+            return data.filter(x => {
+                let date = new Date(x.time)
+                let result = historyFrom<=date && date<=historyTo
+                return result})
+        }
+        else
+            return data.filter(filter)
+    }
+
+    function filterForecastData(data) {
+        if(forecastFrom && forecastTo) {
+            let now = new Date();
+            return data.filter(x => {
+                let date = new Date(x.time)
+                if(forecastFrom>forecastTo) {
+                    if(date.getDay() === now.getDay()) {
+                        return forecastFrom<=date.getHours()
+                    } else {
+                        return date.getHours()<=forecastTo
+                    }
+                } else {
+                    if(date.getDay() === now.getDay() && forecastFrom<=now.getHours() && forecastTo>now.getHours()) {
+                        return false;
+                    }
+                    return forecastFrom<=date.getHours() && date.getHours()<=forecastTo
+                }
+            })
+        }
+        else
+            return data.filter(filter)
+    }
+
+    const historyFiltered = (historyFrom,historyTo) => model(
         place,
         temperature,
         precipitation,
@@ -59,27 +92,46 @@ const model = (place,
         precipitationPrediction,
         windPrediction,
         cloudPrediction,
-        filter = (from,to,x) => {
-            console.log("From" + from)
-            console.log("To" + to)
-            console.log(from<=new Date(x.time) && new Date(x.time)<=to)
-            return from<=new Date(x.time) && new Date(x.time)<=to}
+        historyFrom,
+        historyTo,
+        forecastFrom,
+        forecastTo,
+        filter
+    )
+
+    const forecastFiltered = (forecastFrom,forecastTo) => model(
+        place,
+        temperature,
+        precipitation,
+        wind,
+        cloud,
+        temperaturePrediction,
+        precipitationPrediction,
+        windPrediction,
+        cloudPrediction,
+        historyFrom,
+        historyTo,
+        forecastFrom,
+        forecastTo,
+        filter
     )
 
     const latest = () => model(
         place,
-        findLatest(temperature),
-        findLatest(precipitation),
-        findLatest(wind),
-        findLatest(cloud)
+        findLatest(temperatureData()),
+        findLatest(precipitationData()),
+        findLatest(windData()),
+        findLatest(cloudData()),
+        historyFrom,
+        historyTo
     )
 
     const lastFive = () => model(
         place,
-        getLastFive(temperature),
-        getLastFive(precipitation),
-        getLastFive(wind),
-        getLastFive(cloud)
+        getLastFive(temperatureData()),
+        getLastFive(precipitationData()),
+        getLastFive(windData()),
+        getLastFive(cloudData())
     )
 
     const all = () => model(
@@ -91,7 +143,11 @@ const model = (place,
         temperaturePrediction,
         precipitationPrediction,
         windPrediction,
-        cloudPrediction
+        cloudPrediction,
+        historyFrom,
+        historyTo,
+        forecastFrom,
+        forecastTo
     )
 
     return {
@@ -104,10 +160,15 @@ const model = (place,
         precipitationPredictionData,
         windPredictionData,
         cloudPredictionData,
-        filtered,
+        historyFiltered,
+        forecastFiltered,
         latest,
         lastFive,
         reload,
+        historyFrom,
+        historyTo,
+        forecastFrom,
+        forecastTo,
         all
     }
 }
