@@ -12,6 +12,10 @@
             border: 1px solid black;
             border-spacing: 0;
         }
+
+        .warning_text {
+            width: 400px;
+        }
     </style>
     <script type='module'>
         import 'https://ajax.googleapis.com/ajax/libs/angularjs/1.6.5/angular.min.js'
@@ -22,6 +26,10 @@
 <div id='base'>
 
     <h3>Warnings</h3>
+    <label class="switch" >
+        <input type="checkbox" ng-model="warningModel.warningsAutoUpdate" ng-change="toggleWarnings(warningModel.warningsAutoUpdate)">
+        Enable warnings auto update
+    </label>
     <h3>Select minimum severity level</h3>
     <input type="number" id="minSeverityLevel" ng-model="warningModel.minSeverityLevel">
 

@@ -27,22 +27,9 @@ module.value('$model', {
 module.value('$warningModel', {
     warnings: [],
     minSeverityLevel: 0,
+    warningsAutoUpdate: true,
 })
 
-/**
- * {"id": 117,
-        "severity": 2,
-        "prediction": {
-        "type": "precipitation",
-            "time": "2019-07-31T10:07:00.000Z",
-            "place": "Aarhus",
-            "from": 10.0,
-            "to": 21.5,
-            "unit": "mm",
-            "precipitation_types": ["rain"]
-    }
-    },
- */
 module.component('warningsTable', {
     bindings: {attribute: '@'},
     template: `
@@ -54,7 +41,7 @@ module.component('warningsTable', {
             <td>Time</td>
             <td>Type</td>
             <td>Value</td>
-            <td>Additional information</td>
+            <td>Changes</td>
         </tr>
     </thead>
         <tbody>
@@ -63,8 +50,9 @@ module.component('warningsTable', {
               <td>{{warning.severity}}</td>
               <td>{{warning.prediction.time}}</td>
               <td>{{warning.prediction.type}}</td>
-              <td>{{warning.prediction.from}} - {{warning.prediction.to}}</td>
-              <td>{{warning}}</td>
+              <td class="warning_text">{{$ctrl.formatWarning(warning)}}</td>
+              <td class="warning_text">{{warning.changes}}</td>
+<!--              <td class="warning_text">{{warning}}</td>-->
           </tr>
     </tbody>
 </table>`,
@@ -81,8 +69,9 @@ module.component('warningsTable', {
         this.formatHourlyWind = $scope.$parent.formatHourlyWind
         this.formatCloud = $scope.$parent.formatCloud
         this.formatHourlyCloud = $scope.$parent.formatHourlyCloud
+        this.formatWarning = $scope.$parent.formatWarning
         console.log(this.warningModel);
-        console.log($warningModel);
+        console.log(this);
     }]
 })
 
@@ -341,7 +330,7 @@ module.controller('WeatherController', function ($scope, $model, $warningModel, 
     const pollWarning = () => interval(100)
         .pipe(concatMap(() => ajax.getJSON("http://localhost:8080/warnings")));
 
-    pollWarning().subscribe(data => updateWarnings($scope, data.warnings));
+    let pollSubscriber = pollWarning().subscribe(data => updateWarnings($scope, data.warnings));
 
     $scope.changePlace = place => {
         loadData($scope, $model, $http, place)
@@ -363,6 +352,14 @@ module.controller('WeatherController', function ($scope, $model, $warningModel, 
         postData($http, $model, $scope)
     }
 
+    $scope.toggleWarnings = value => {
+        if(value) {
+            pollSubscriber = pollWarning().subscribe(data => updateWarnings($scope, data.warnings));
+        } else {
+            pollSubscriber.unsubscribe();
+        }
+    }
+
     $scope.formatTemp = formatTemp
     $scope.formatHourlyTemp = formatHourlyTemp
     $scope.formatPrecipitation = formatPrecipitation
@@ -372,12 +369,14 @@ module.controller('WeatherController', function ($scope, $model, $warningModel, 
     $scope.formatCloud = formatCloud
     $scope.formatHourlyCloud = formatHourlyCloud
     $scope.formatHour = formatHour
+    $scope.formatWarning = formatWarning
 })
 
 function updateWarnings($scope, warnings) {
     $scope.$apply(function ()  {
-        $scope.warningModel.warnings = warningsModel(warnings, $scope.warningModel.warnings, $scope.warningModel.minSeverityLevel)
-            .warningsFilteredBySeverity();
+        console.log("update")
+        let warningModel = warningsModel(warnings, $scope.warningModel.minSeverityLevel)
+        $scope.warningModel.warnings = warningModel.warningsFilteredBySeverity();
     })
 }
 
@@ -455,13 +454,33 @@ function postData($http, $model, $scope) {
         "value": Number($model.cloud),
         "unit": "%"
     }]
-    console.log(data)
     $http.post(`http://localhost:8080/data`, data).then(
         (response) => {
             console.log(response)
             $scope.reload()
         }
     )
+}
+
+function formatWarning(warning) {
+    let prediction = warning.prediction;
+    switch(prediction.type) {
+        case temperatureType: {
+            return `From ${prediction.from} ${prediction.unit} to ${prediction.to} ${prediction.unit}`;
+        }
+        case windType: {
+            return `From ${prediction.from} ${prediction.unit} to ${prediction.to} ${prediction.unit}
+             of ${prediction.directions.join(", ")}`;
+        }
+        case precipitationType: {
+            return `From ${prediction.from} ${prediction.unit} to ${prediction.to} ${prediction.unit}
+             of ${prediction.precipitation_types.join(", ")}`;
+        }
+        case cloudType: {
+            return `From ${prediction.from} ${prediction.unit} to ${prediction.to} ${prediction.unit}`;
+        }
+    }
+    return "warning"
 }
 
 function formatHour(time) {
