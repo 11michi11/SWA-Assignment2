@@ -1,4 +1,5 @@
 import model from './model.js'
+import warningsModel from './warningsModel.js'
 
 const module = angular.module('weatherApp',[])
 
@@ -17,8 +18,55 @@ module.value('$model', {
     precipitation_type: "",
     wind_speed: "",
     wind_direction: "",
-    cloud: "",
-    severity: "0"
+    cloud: ""
+})
+
+module.value('$warningModel', {
+    warnings: [],
+    minSeverityLevel: 0,
+})
+
+module.component('warningsTable', {
+    bindings: {attribute: '@'},
+    template: `
+<table>
+    <thead>
+        <tr>
+            <td>Place</td>
+            <td>Severity</td>
+            <td>Time</td>
+            <td>Type</td>
+            <td>Value</td>
+            <td>Additional information</td>
+        </tr>
+    </thead>
+        <tbody>
+          <tr ng-repeat="warning in $ctrl.warningModel.warnings">
+              <td>{{warning.prediction.place}}</td>
+              <td>{{warning.severity}}</td>
+              <td>{{warning.prediction.time}}</td>
+              <td>{{warning.prediction.type}}</td>
+              <td>{{warning.prediction.from}} - {{warning.prediction.to}}</td>
+              <td>{{warning}}</td>
+          </tr>
+    </tbody>
+</table>`,
+    controller: ['$model', '$scope', '$warningModel', function ($model, $scope, $warningModel) {
+        this.model = $model
+        this.warningModel = $warningModel
+        this.changePlace = $scope.$parent.changePlace
+        this.reload = $scope.$parent.reload
+        this.formatTemp = $scope.$parent.formatTemp
+        this.formatHourlyTemp = $scope.$parent.formatHourlyTemp
+        this.formatPrecipitation = $scope.$parent.formatPrecipitation
+        this.formatHourlyPrecipitation = $scope.$parent.formatHourlyPrecipitation
+        this.formatWind = $scope.$parent.formatWind
+        this.formatHourlyWind = $scope.$parent.formatHourlyWind
+        this.formatCloud = $scope.$parent.formatCloud
+        this.formatHourlyCloud = $scope.$parent.formatHourlyCloud
+        console.log(this.warningModel);
+        console.log($warningModel);
+    }]
 })
 
 module.component('weatherMeasurementsTable', {
@@ -265,13 +313,35 @@ const precipitationType = 'precipitation'
 const windType = 'wind speed'
 const cloudType = 'cloud coverage'
 
-module.controller('WeatherController', function ($scope, $model, $http) {
+module.controller('WeatherController', function ($scope, $model, $warningModel, $http) {
     $scope.model = $model
+    $scope.warningModel = $warningModel;
+    let flag = true;
+    let wModel
+
     loadData($scope, $model, $http, $model.place)
 
-    //TODO - call model
-    $scope.changeSeverity = severity => {
-
+    const ws = new WebSocket(`ws://localhost:8090/warnings`)
+    ws.onopen = () => {
+        ws.send('subscribe')
+    }
+    ws.onmessage = message => {
+        if (flag) {
+            $scope.$apply(function ()  {
+                wModel = warningsModel(JSON.parse(message.data).warnings, $scope.warningModel.minSeverityLevel)
+                $scope.warningModel.warnings = wModel.warningsFilteredBySeverity()
+            })
+            flag = false
+        } else {
+            $scope.$apply(function ()  {
+                $scope.warningModel.warnings = wModel.updateWarning(JSON.parse(message.data))
+            })
+        }
+        //console.log(message.data)
+    }
+    ws.onerror = error => {
+        console.log("on error")
+        console.log(error)
     }
 
     $scope.changePlace = place => {
@@ -305,24 +375,18 @@ module.controller('WeatherController', function ($scope, $model, $http) {
     $scope.formatHour = formatHour
 })
 
-function fetchWarnings() {
-    let aModel
-    let warnings
-    const ws = new WebSocket(`ws://localhost:8090/warnings`)
-    ws.onopen = () => {
-        ws.send('subscribe')
-    }
-    ws.onmessage = message => {
-        warnings.push(message.data)
-        console.log(warnings)
-        if (aModel) {
-            aModel.updateWarnings(message.data)
-        }
-    }
-    ws.onerror = error => {
-        console.log("on error")
-        console.log(error)
-    }
+function updateWarnings($scope, warnings) {
+        $scope.$apply(function ()  {
+            $scope.warningModel.warnings = warningsModel(warnings, $scope.warningModel.warnings, $scope.warningModel.minSeverityLevel)
+                .warningsFilteredBySeverity();
+        })
+}
+
+function updateWarning($scope, warning, list) {
+    $scope.$apply(function ()  {
+        $scope.warningModel.warnings = warningsModel(list, $scope.warningModel.warnings, $scope.warningModel.minSeverityLevel)
+            .updateWarning(warning)
+    })
 }
 
 function loadData($scope, $model, $http, place,intervalStart,intervalEnd,dateStart,dateEnd) {
@@ -354,7 +418,6 @@ function loadData($scope, $model, $http, place,intervalStart,intervalEnd,dateSta
                         groupedForecasts[precipitationType],
                         groupedForecasts[windType],
                         groupedForecasts[cloudType],
-                        warnings,
                         () => true
                     );
                     $scope.model.data = aModel

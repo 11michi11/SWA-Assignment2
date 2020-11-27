@@ -6,8 +6,7 @@ const model = (place,
                temperaturePrediction,
                precipitationPrediction,
                windPrediction,
-               cloudPrediction,
-               warning
+               cloudPrediction
 ) => {
 
     const all = () => model(
@@ -19,13 +18,8 @@ const model = (place,
         temperaturePrediction,
         precipitationPrediction,
         windPrediction,
-        cloudPrediction,
-        warning
+        cloudPrediction
     )
-
-    const updateWarnings = (warnings) => {
-        warning.push(warnings)
-    }
 
     const lastMeasurement = {
         temperature: temperature[temperature.length - 1],
@@ -114,16 +108,6 @@ const model = (place,
                         wind: windPrediction[i],
                         cloud: cloudPrediction[i],
                     })
-            }
-        }
-        return result
-    }
-
-    const getWarning = (minSeverity) => {
-        let result = []
-        for(let i = 0; i < warning.length; i++) {
-            if (warning['severity'] >= minSeverity) {
-                result.push(warning[i])
             }
         }
         return result
