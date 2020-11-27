@@ -17,8 +17,23 @@
         import './components.js'
     </script>
 </head>
+
 <body ng-controller="WeatherController">
     <div id='base'>
+        <h1>Warnings</h1>
+        <warnings-table >
+        </warnings-table>
+
+        <h3>Select severity</h3>
+        <select ng-model="model.severity" ng-change="changeSeverity(model.severity)">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+        </select>
+
         <h3>Select city</h3>
         <select ng-model="model.place" ng-change="changePlace(model.place)">
             <option value="Horsens">Horsens</option>

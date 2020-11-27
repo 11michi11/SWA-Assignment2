@@ -1,6 +1,6 @@
 import model from './model.js'
 
-const module = angular.module('weatherApp', [])
+const module = angular.module('weatherApp',[])
 
 /*/
 TWO WAYS DATA BIDING
@@ -17,7 +17,8 @@ module.value('$model', {
     precipitation_type: "",
     wind_speed: "",
     wind_direction: "",
-    cloud: ""
+    cloud: "",
+    severity: "0"
 })
 
 module.component('weatherMeasurementsTable', {
@@ -268,6 +269,11 @@ module.controller('WeatherController', function ($scope, $model, $http) {
     $scope.model = $model
     loadData($scope, $model, $http, $model.place)
 
+    //TODO - call model
+    $scope.changeSeverity = severity => {
+
+    }
+
     $scope.changePlace = place => {
         loadData($scope, $model, $http, place)
     }
@@ -299,9 +305,29 @@ module.controller('WeatherController', function ($scope, $model, $http) {
     $scope.formatHour = formatHour
 })
 
+function fetchWarnings() {
+    let aModel
+    let warnings
+    const ws = new WebSocket(`ws://localhost:8090/warnings`)
+    ws.onopen = () => {
+        ws.send('subscribe')
+    }
+    ws.onmessage = message => {
+        warnings.push(message.data)
+        console.log(warnings)
+        if (aModel) {
+            aModel.updateWarnings(message.data)
+        }
+    }
+    ws.onerror = error => {
+        console.log("on error")
+        console.log(error)
+    }
+}
 
 function loadData($scope, $model, $http, place,intervalStart,intervalEnd,dateStart,dateEnd) {
     let aModel
+
     $http.get(`http://localhost:8080/data/${place}`)
         .then(({data: measurements}) => {
             $http.get(`http://localhost:8080/forecast/${place}`)
@@ -328,6 +354,7 @@ function loadData($scope, $model, $http, place,intervalStart,intervalEnd,dateSta
                         groupedForecasts[precipitationType],
                         groupedForecasts[windType],
                         groupedForecasts[cloudType],
+                        warnings,
                         () => true
                     );
                     $scope.model.data = aModel
