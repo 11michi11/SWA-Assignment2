@@ -47,8 +47,8 @@ module.component('warningsTable', {
               <td>{{warning.severity}}</td>
               <td>{{warning.prediction.time}}</td>
               <td>{{warning.prediction.type}}</td>
-              <td>{{warning.prediction.from}} - {{warning.prediction.to}}</td>
-              <td>{{warning.changes}}</td>
+              <td class="warning_text">{{$ctrl.formatWarning(warning)}}</td>
+              <td class="warning_text">{{warning.changes}}</td>
           </tr>
     </tbody>
 </table>`,
@@ -65,8 +65,9 @@ module.component('warningsTable', {
         this.formatHourlyWind = $scope.$parent.formatHourlyWind
         this.formatCloud = $scope.$parent.formatCloud
         this.formatHourlyCloud = $scope.$parent.formatHourlyCloud
+        this.formatWarning = $scope.$parent.formatWarning
         console.log(this.warningModel);
-        console.log($warningModel);
+        console.log(this);
     }]
 })
 
@@ -327,6 +328,7 @@ module.controller('WeatherController', function ($scope, $model, $warningModel, 
         ws.send('subscribe')
     }
     ws.onmessage = message => {
+        console.log("on message")
         if (flag) {
             $scope.$apply(function ()  {
                 wModel = warningsModel(JSON.parse(message.data).warnings, $scope.warningModel.minSeverityLevel)
@@ -349,6 +351,7 @@ module.controller('WeatherController', function ($scope, $model, $warningModel, 
             ws.send('subscribe')
         } else {
             ws.send('unsubscribe')
+            flag = true
         }
     }
 
@@ -381,6 +384,7 @@ module.controller('WeatherController', function ($scope, $model, $warningModel, 
     $scope.formatCloud = formatCloud
     $scope.formatHourlyCloud = formatHourlyCloud
     $scope.formatHour = formatHour
+    $scope.formatWarning = formatWarning
 })
 
 function loadData($scope, $model, $http, place,intervalStart,intervalEnd,dateStart,dateEnd) {
@@ -465,6 +469,27 @@ function postData($http, $model, $scope) {
             $scope.reload()
         }
     )
+}
+
+function formatWarning(warning) {
+    let prediction = warning.prediction;
+    switch(prediction.type) {
+        case temperatureType: {
+            return `From ${prediction.from} ${prediction.unit} to ${prediction.to} ${prediction.unit}`;
+        }
+        case windType: {
+            return `From ${prediction.from} ${prediction.unit} to ${prediction.to} ${prediction.unit}
+             of ${prediction.directions.join(", ")}`;
+        }
+        case precipitationType: {
+            return `From ${prediction.from} ${prediction.unit} to ${prediction.to} ${prediction.unit}
+             of ${prediction.precipitation_types.join(", ")}`;
+        }
+        case cloudType: {
+            return `From ${prediction.from} ${prediction.unit} to ${prediction.to} ${prediction.unit}`;
+        }
+    }
+    return "warning"
 }
 
 function formatHour(time) {

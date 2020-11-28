@@ -1,7 +1,7 @@
 const warningsModel = (warnings, minSeverityLevel) => {
 
     const warningsFilteredBySeverity = () => {
-        return warnings.filter(warning => warning.severity >= minSeverityLevel)
+        return warnings.filter(warning =>  warning.prediction != null && warning.severity >= minSeverityLevel)
     }
 
     const updateWarning = (newWarning, severity) => {
