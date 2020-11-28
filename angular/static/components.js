@@ -24,6 +24,7 @@ module.value('$model', {
 module.value('$warningModel', {
     warnings: [],
     minSeverityLevel: 0,
+    warningsAutoUpdate: true,
 })
 
 module.component('warningsTable', {
@@ -37,7 +38,7 @@ module.component('warningsTable', {
             <td>Time</td>
             <td>Type</td>
             <td>Value</td>
-            <td>Additional information</td>
+            <td>Changes</td>
         </tr>
     </thead>
         <tbody>
@@ -47,7 +48,7 @@ module.component('warningsTable', {
               <td>{{warning.prediction.time}}</td>
               <td>{{warning.prediction.type}}</td>
               <td>{{warning.prediction.from}} - {{warning.prediction.to}}</td>
-              <td>{{warning}}</td>
+              <td>{{warning.changes}}</td>
           </tr>
     </tbody>
 </table>`,
@@ -334,14 +335,21 @@ module.controller('WeatherController', function ($scope, $model, $warningModel, 
             flag = false
         } else {
             $scope.$apply(function ()  {
-                $scope.warningModel.warnings = wModel.updateWarning(JSON.parse(message.data))
+                $scope.warningModel.warnings = wModel.updateWarning(JSON.parse(message.data), $scope.warningModel.minSeverityLevel)
             })
         }
-        //console.log(message.data)
     }
     ws.onerror = error => {
         console.log("on error")
         console.log(error)
+    }
+
+    $scope.toggleWarnings = value => {
+        if(value) {
+            ws.send('subscribe')
+        } else {
+            ws.send('unsubscribe')
+        }
     }
 
     $scope.changePlace = place => {
@@ -374,20 +382,6 @@ module.controller('WeatherController', function ($scope, $model, $warningModel, 
     $scope.formatHourlyCloud = formatHourlyCloud
     $scope.formatHour = formatHour
 })
-
-function updateWarnings($scope, warnings) {
-        $scope.$apply(function ()  {
-            $scope.warningModel.warnings = warningsModel(warnings, $scope.warningModel.warnings, $scope.warningModel.minSeverityLevel)
-                .warningsFilteredBySeverity();
-        })
-}
-
-function updateWarning($scope, warning, list) {
-    $scope.$apply(function ()  {
-        $scope.warningModel.warnings = warningsModel(list, $scope.warningModel.warnings, $scope.warningModel.minSeverityLevel)
-            .updateWarning(warning)
-    })
-}
 
 function loadData($scope, $model, $http, place,intervalStart,intervalEnd,dateStart,dateEnd) {
     let aModel
